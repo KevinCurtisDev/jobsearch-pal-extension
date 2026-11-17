@@ -105,9 +105,68 @@ export function networkHits(text: string, allowed: ReadonlySet<string>): string[
   for (const [re, label] of NETWORK_APIS) for (const m of text.matchAll(re)) hits.push({ at: m.index, msg: label });
   for (const m of text.matchAll(URL_RE)) if (!allowed.has(m[0])) hits.push({ at: m.index, msg: `external URL ${m[0]}` });
   hits.sort((a, b) => a.at - b.at);
-  return hits.map(({ at, msg }) => {
-    const before = text.slice(0, at);
-    const line = before.split("\n").length;
-    return `${msg} at ${line}:${at - before.lastIndexOf("\n")}`;
-  });
+  return hits.map(({ at, msg }) => `${msg} at ${lineCol(text, at)}`);
+}
+
+function lineCol(text: string, at: number): string {
+  const before = text.slice(0, at);
+  return `${before.split("\n").length}:${at - before.lastIndexOf("\n")}`;
+}
+
+// Locales (ADR-011). The manifest names come from _locales/<default_locale>/messages.json via
+// __MSG_key__ placeholders; check-dist resolves them before the store length checks.
+
+export type Messages = Record<string, string>;
+
+/** Validates a parsed messages.json ({ key: { message } }) and returns lower-cased keys (Chrome matches them case-insensitively). */
+export function loadMessages(json: unknown): { messages: Messages; errors: string[] } {
+  const messages: Messages = {};
+  if (!json || typeof json !== "object" || Array.isArray(json)) return { messages, errors: ["messages.json must be an object"] };
+  const errors: string[] = [];
+  for (const [key, entry] of Object.entries(json as Json)) {
+    const message = entry && typeof entry === "object" ? (entry as Json).message : undefined;
+    if (typeof message !== "string") errors.push(`messages.json "${key}" needs a string "message"`);
+    else messages[key.toLowerCase()] = message;
+  }
+  return { messages, errors };
+}
+
+const MSG_RE = /__MSG_(\w+)__/g;
+
+/** Copy of the manifest with every __MSG_key__ in string values replaced; unknown keys are errors. */
+export function resolveMessages(m: Json, messages: Messages): { manifest: Json; errors: string[] } {
+  const errors: string[] = [];
+  const walk = (v: unknown): unknown => {
+    if (typeof v === "string") {
+      return v.replace(MSG_RE, (whole, key: string) => {
+        const found = messages[key.toLowerCase()];
+        if (found === undefined) errors.push(`manifest uses ${whole} but messages.json has no "${key}"`);
+        return found ?? whole;
+      });
+    }
+    if (Array.isArray(v)) return v.map(walk);
+    if (v && typeof v === "object") return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, walk(x)]));
+    return v;
+  };
+  return { manifest: walk(m) as Json, errors };
+}
+
+/** Locale rules: default_locale "en", localized name/short_name/description, extName starts with the config name. */
+export function checkLocale(m: Json, messages: Messages, configName: string): string[] {
+  const errors: string[] = [];
+  if (m.default_locale !== "en") errors.push('default_locale must be "en"');
+  for (const [field, key] of [["name", "extName"], ["short_name", "extShortName"], ["description", "extDescription"]] as const) {
+    if (m[field] !== `__MSG_${key}__`) errors.push(`manifest ${field} must be "__MSG_${key}__"`);
+  }
+  const name = messages.extname;
+  if (typeof name !== "string" || !name.startsWith(configName)) errors.push(`extName must start with "${configName}" (extension.config.json name)`);
+  return errors;
+}
+
+// G6 brand scan (SPEC §6): earlier working names must never ship.
+const OLD_NAMES = /jobpilot|hearback|offerlight/gi;
+
+/** Old product names in a shipped file, one message per hit with line:column. */
+export function brandHits(text: string): string[] {
+  return [...text.matchAll(OLD_NAMES)].map((m) => `old name "${m[0]}" at ${lineCol(text, m.index)}`);
 }

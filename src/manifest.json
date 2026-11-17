@@ -1,9 +1,10 @@
 {
   "manifest_version": 3,
-  "name": "JobSearch Pal",
-  "short_name": "JobSearchPal",
+  "name": "__MSG_extName__",
+  "short_name": "__MSG_extShortName__",
   "version": "0.1.0",
-  "description": "Save job posts from the page you're on, track each application's status, set reminders, back up and export. Free and local-only.",
+  "description": "__MSG_extDescription__",
+  "default_locale": "en",
   "permissions": [
     "activeTab",
     "scripting",
@@ -14,7 +15,7 @@
     "type": "module"
   },
   "action": {
-    "default_title": "JobSearch Pal",
+    "default_title": "__MSG_extName__",
     "default_icon": {
       "16": "icons/icon16.png",
       "32": "icons/icon32.png",

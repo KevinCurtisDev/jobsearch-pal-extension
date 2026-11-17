@@ -29,7 +29,7 @@ lists the files it touches, so Claude reads only those. Helper: `node scripts/ta
 - **Done when:** the scan detects `fetch(`, `XMLHttpRequest`, `WebSocket`, `EventSource`, `sendBeacon`, remote `import()` and any `http(s)://` string not in the allowlist; allowlist entries are exact strings, each with a reason, and the loader rejects wildcard or pattern entries (unit test); the bad fixture fails with one message per hit and a clean fixture passes; current `dist/` passes; `npm run verify` green
 - **Manual check:** none
 
-### T0.3 Brand module, locales and brand scan (G6) `[ ]`
+### T0.3 Brand module, locales and brand scan (G6) `[x]`
 - **Goal:** brand strings live only in `src/core/brand.ts` and `_locales/en/messages.json` (ADR-011), and the old names cannot ship.
 - **Files:** `src/core/brand.ts`, `_locales/en/messages.json`, `src/manifest.json`, `build.json`, `scripts/dist-rules.ts`, `scripts/check-dist.ts`, `tests/unit/brand.test.ts`, `tests/unit/manifest.test.ts`, `tests/e2e/smoke.spec.ts`
 - **Depends on:** T0.1

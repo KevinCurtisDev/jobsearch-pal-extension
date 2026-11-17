@@ -11,5 +11,10 @@
       "format": "iife"
     }
   ],
-  "static": []
+  "static": [
+    {
+      "from": "_locales",
+      "to": "_locales"
+    }
+  ]
 }

@@ -1,0 +1,14 @@
+{
+  "extName": {
+    "message": "JobSearch Pal: Job Application Tracker",
+    "description": "Extension name shown in Chrome and the Web Store (at most 75 characters)."
+  },
+  "extShortName": {
+    "message": "JobSearchPal",
+    "description": "Short name where space is limited (at most 12 characters)."
+  },
+  "extDescription": {
+    "message": "Save job posts from the page you're on, track each application's status, set reminders, back up and export. Free and local-only.",
+    "description": "Extension description (at most 132 characters)."
+  }
+}

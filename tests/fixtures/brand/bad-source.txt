@@ -1,0 +1,4 @@
+G6 brand scan fixture (tests/unit/brand.test.ts); scanned as text, never built or shipped.
+const title = "JobPilot";
+// see hearback.example and OFFERLIGHT
+const ok = "jobs pilot, hear back, offer light";
