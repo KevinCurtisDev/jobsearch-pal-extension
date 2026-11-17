@@ -2,11 +2,11 @@
 
 ## Current state
 *Rewritten at the end of every session (15 lines or fewer). A new session starts here.*
-- **Milestone:** M1 Checkpoint A, vertical slice, on branch `m1-vertical-slice`: all tasks T1.1–T1.8 done; milestone verification next.
+- **Milestone:** M1 Checkpoint A, vertical slice, on branch `m1-vertical-slice`: T1.1–T1.8 done; `/verify-extension` passed 2026-11-17 (no fixes needed).
 - **Last done:** 2026-11-17 T1.8: `@axe-core/playwright` 4.14.0 (exact, dev, ADR-016); a11y.spec (empty, review, errors, list, import dry-run + canary); slice.spec (acceptance 1 and 4 end to end, header maps all six); offline.spec covers capture → save → export → import; bundle sizes in `npm run measure`, M1 baseline in `docs/QA.md`.
-- **Next step:** `/verify-extension`, then the owner's M1 manual checklist in `docs/QA.md`, then `/prepare-release` (owner decides).
+- **Next step:** owner runs the M1 checklist in `docs/QA.md` in Chrome; then merge `m1-vertical-slice` to main and `/prepare-release` (both need owner approval).
 - **Waiting for the owner:** the M1 checklist in `docs/QA.md` (S13 in desktop Chrome with version, capture/save, LinkedIn, keyboard at 320 px, backup round trip, bad backup, offline). Confirm the six statuses (RECONCILE C8) before M2 status editing. Set bundle limits from the baseline.
-- **Gates:** `npm run verify` green (160 unit tests); `test:e2e` 36/36 at T1.8. G1 allowlist 4 entries. Permissions still the six (ADR-006).
+- **Gates (verify-extension 2026-11-17):** `npm run verify` green (160 unit tests); `test:e2e` 36/36; `npm audit --omit=dev` 0; full audit 11 high, all GHSA-fc5q-39xc-vjpf (picomatch, dev-only, ADR-018). Permissions still the six.
 - **Bundle baseline (prod):** 342,072 B / 112,851 B gzip total (sidepanel.js 149.7 kB, background.js 143.3 kB, page.js 38.9 kB).
 - **Import rules:** a file job whose draftId is stored under another id is invalid (with its events); events for unknown jobs or a mismatched application are invalid. Backup omits `applications` (projections).
 - **Note:** G1 flags `http://` in any shipped string, including UI text; word messages without scheme literals.
