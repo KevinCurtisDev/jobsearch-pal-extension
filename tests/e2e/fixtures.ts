@@ -128,10 +128,11 @@ export const test = base.extend<Fixtures, { origin: string }>({
 });
 
 /** Launches persistent Chromium with only dist/ loaded. `extraArgs` go on the command line. */
-export async function launchExtension(extraArgs: string[] = []): Promise<BrowserContext> {
+/** `userDataDir` "" (default) is a fresh temporary profile; pass a directory to reuse a profile across launches. */
+export async function launchExtension(extraArgs: string[] = [], userDataDir = ""): Promise<BrowserContext> {
   const ext = path.resolve("dist");
   if (!existsSync(path.join(ext, "manifest.json"))) throw new Error("dist/ is missing: run npm run build (npm run test:e2e does this)");
-  return chromium.launchPersistentContext("", {
+  return chromium.launchPersistentContext(userDataDir, {
     channel: "chromium",
     ...(process.env.PW_CHROMIUM_PATH ? { executablePath: process.env.PW_CHROMIUM_PATH } : {}),
     headless: process.env.HEADLESS !== "0",

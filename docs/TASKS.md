@@ -29,7 +29,7 @@ lists the files it touches, so Claude reads only those. Helper: `node scripts/ta
 - **Done when:** ULIDs are sortable and monotonic within the same millisecond, with randomness and clock injected; schemas reject oversized strings and non-http(s) URLs; money is integer minor units plus ISO 4217 currency plus period; date-only values are `YYYY-MM-DD` and instants ISO UTC; every captured field carries source, confidence and time; `rebuildProjections(events)` matches the stored projections in tests; `npm run verify` green
 - **Manual check:** none
 
-### T1.3 Storage v2: save transaction and reads `[ ]`
+### T1.3 Storage v2: save transaction and reads `[x]`
 - **Goal:** Dexie v2 adds `jobs`, `applications` and `applicationEvents`, with one storage-module write path (`saveJob`, also used by import later) and validated reads.
 - **Files:** `src/storage/db.ts`, `src/storage/jobs.ts`, `src/background/index.ts`, `tests/e2e/db.spec.ts`
 - **Depends on:** T1.2
