@@ -2,10 +2,10 @@
 
 ## Current state
 *Rewritten at the end of every session (15 lines or fewer). A new session starts here.*
-- **Milestone:** M1 Checkpoint A, vertical slice: done, verified, merged into `main` (ADR-019, local only, not pushed).
+- **Milestone:** M1 Checkpoint A, vertical slice: done, verified, merged into `main` (ADR-019) and pushed to origin (owner, 2026-11-17).
 - **Last done:** 2026-11-17 T1.8: `@axe-core/playwright` 4.14.0 (exact, dev, ADR-016); a11y.spec (empty, review, errors, list, import dry-run + canary); slice.spec (acceptance 1 and 4 end to end, header maps all six); offline.spec covers capture → save → export → import; bundle sizes in `npm run measure`, M1 baseline in `docs/QA.md`.
-- **Next step:** owner decides: push `main`, `/prepare-release <version>` (e.g. 0.2.0), or `/plan-feature` for M2. Each needs approval.
-- **Owner QA:** M1 checklist passed in Chrome 158 (2026-11-17); S13 `ok: false` both settings (ADR-013). Waiting: push/release approval; confirm the six statuses (RECONCILE C8) before M2; set bundle limits from the baseline.
+- **Next step:** owner decides: `/prepare-release <version>` (e.g. 0.2.0) or `/plan-feature` for M2. Each needs approval.
+- **Owner QA:** M1 checklist passed in Chrome 158 (2026-11-17); S13 `ok: false` both settings (ADR-013). Waiting: release approval; confirm the six statuses (RECONCILE C8) before M2; set bundle limits from the baseline.
 - **Gates (2026-11-17, after the location fix):** `npm run verify` green (162 unit tests); `test:e2e` 36/36; `npm audit --omit=dev` 0; full audit 11 high, all GHSA-fc5q-39xc-vjpf (picomatch, dev-only, ADR-018). Permissions still the six.
 - **Bundle baseline (prod):** 342,072 B / 112,851 B gzip total (sidepanel.js 149.7 kB, background.js 143.3 kB, page.js 38.9 kB).
 - **Import rules:** a file job whose draftId is stored under another id is invalid (with its events); events for unknown jobs or a mismatched application are invalid. Backup omits `applications` (projections).
