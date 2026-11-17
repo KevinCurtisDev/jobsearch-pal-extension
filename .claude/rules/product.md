@@ -16,6 +16,7 @@ here never overrides CLAUDE.md's hard rules. Gate status and gaps: `docs/RECONCI
 - **X6** Never autofill or store special category fields (diversity, disability, ethnicity, gender identity, religion, health).
 - **X7** Never invent experience. Any generated or rearranged text passes the no-invention guard in `src/core`.
 - **X8** Every score shows reasons, source and confidence, and a waiting state until its data gate is met. Uncalibrated thresholds are never shown as numbers.
+- **X8a** Never call a vacancy a "scam" or a "ghost job". Show signals and let the user decide.
 - **X9** The user owns the data: one-click export (JSON, CSV), one-click delete, optional passphrase-encrypted backup, a "what is stored" screen.
 - **X10** Minimum permissions, each justified in `docs/STORE_LISTING.md` and `docs/PRIVACY.md`. No `<all_urls>`; no host permissions without an ADR.
 - **X11** In-page hide or highlight only on Tier A sites the user enabled one by one; never on X3 sites. Ids are ULIDs. The append-only event log is the source of truth; other state is a projection rebuildable from it.

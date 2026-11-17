@@ -61,3 +61,27 @@
 - **Decision:** proceed on the defaults in `docs/source/decisions-needed.md` for #23, #24, #26, #27, #31–#36: free-for-life wording per 16 §1; ADR 0008 Tier C policy; dedicated publisher account now, trader status after incorporation; platform date internal only; encrypted export only; extracted text only until S10; Chrome 120; free for life; hiding on Tier A only, per-site opt-in; ULIDs. #22 is settled by ADR-009.
 - **Why:** none of the defaults blocks Phase 1 code (RECONCILE D8).
 - **Consequences:** the alpha upload still needs the publisher account (#26) and name clearance (#22). Solicitor review of the #23 wording comes before listing copy.
+
+## ADR-011 Where brand strings live (clarifies ADR-009)
+- **Status:** accepted (2026-11-17, owner)
+- **Decision:** in hand-written source, the brand name, store title and domain appear only in `src/core/brand.ts` and `_locales/en/messages.json`. `extension.config.json` stays the root; generated files (`src/shared/product.ts`, manifest, `package.json`) follow it.
+- **Why:** `docs/BUILD-PROMPT.md` §3 and the factory's generated files disagreed (RECONCILE follow-up).
+- **Consequences:** renaming = config + those two files + regenerate. The brand test (G6) scans shipped files, not `docs/`.
+
+## ADR-012 Side panel entry and toolbar behaviour
+- **Status:** accepted (2026-11-17, owner)
+- **Decision:** side panel lives in `src/sidepanel/` with `sidepanel.html`. The worker sets `openPanelOnActionClick: false`; `action.onClicked` calls `chrome.sidePanel.open({ tabId })` first, with no `await` before it, then `activateTab`. No `default_popup`. Panel styles come from CSS variables generated from `design/tokens.json` at build time (no dependency).
+- **Why:** with `openPanelOnActionClick: true`, `action.onClicked` stops firing and toolbar capture would break.
+- **Consequences:** one click opens the panel and captures. The side-panel Save button waits for spike S13 (M1). Headless Chromium may reject `open`; errors are caught and logged.
+
+## ADR-013 Phase 1 spikes, including S13
+- **Status:** accepted (2026-11-17, owner)
+- **Decision:** Phase 1 runs spikes S1, S2, S5, S6, S10, S12 and S13. S13: does a Save job button inside the side panel get an activeTab grant for the current tab, with and without `openPanelOnActionClick`? Fallback: capture from the toolbar icon click.
+- **Why:** `docs/BUILD-PROMPT.md` §4; M1's capture flow depends on S13.
+- **Consequences:** results are recorded as "tested (spike id)". S12 is expected to pass via the factory e2e module (confirmed in T0.6).
+
+## ADR-014 M0 gate policy and dependency versions
+- **Status:** accepted (2026-11-17, owner)
+- **Decision:** `dexie` 4.4.7 (Apache-2.0) and `zod` 4.6.7 (MIT), exact versions, no `^` or `~`. G1 allowlist (`scripts/network-allow.json`) holds exact strings only, each with a reason; no wildcard or pattern entries. Runtime licences limited to MIT, Apache-2.0, ISC, BSD-2-Clause, BSD-3-Clause, 0BSD.
+- **Why:** supply chain risk (R5) and X1.
+- **Consequences:** `npm audit --omit=dev` runs at release (`verify` must work offline); e2e stays outside `verify` and runs in `/verify-extension`. Bundle budgets are set after M1; axe needs a separate dev-dependency approval.
