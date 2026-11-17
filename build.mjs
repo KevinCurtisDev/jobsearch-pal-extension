@@ -4,6 +4,7 @@
 //   npm run dev     development: watch mode, inline source maps, __DEV__ = true
 import * as esbuild from "esbuild";
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tokensToCss } from "./scripts/tokens-css.ts";
 
 const watch = process.argv.includes("--watch");
 const prod = !watch;
@@ -40,6 +41,8 @@ function copyStatic() {
     writeFileSync(locale, JSON.stringify(messages, null, 2) + "\n");
   }
   if (existsSync("public")) cpSync("public", out, { recursive: true });
+  // Design tokens -> CSS variables (ADR-012). Pages link tokens.css; no colour is written anywhere else.
+  writeFileSync(`${out}/tokens.css`, tokensToCss(JSON.parse(readFileSync("design/tokens.json", "utf8"))));
 }
 
 rmSync(out, { recursive: true, force: true });

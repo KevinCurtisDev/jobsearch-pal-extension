@@ -24,6 +24,8 @@ export function checkManifest(m: Json, budget: Budget, pkgVersion: string): stri
   for (const k of ["optional_permissions", "optional_host_permissions", "content_scripts", "externally_connectable", "web_accessible_resources"]) {
     if (k in m) errors.push(`"${k}" is not allowed by the permission budget`);
   }
+  // ADR-012: the toolbar click must reach action.onClicked (capture + open the side panel); a popup would swallow it.
+  if ((m.action as Json | undefined)?.default_popup !== undefined) errors.push("action.default_popup is not allowed: the toolbar icon opens the side panel (ADR-012)");
   const csp = (m.content_security_policy as Json | undefined)?.extension_pages;
   if (csp !== STRICT_CSP) errors.push(`content_security_policy.extension_pages must be "${STRICT_CSP}"`);
   if (m.version !== pkgVersion) errors.push(`manifest version ${String(m.version)} differs from package.json version ${pkgVersion}`);
@@ -43,6 +45,8 @@ export function referencedFiles(m: Json): string[] {
   for (const icons of [m.icons, action?.default_icon]) {
     if (icons && typeof icons === "object") for (const v of Object.values(icons)) files.add(String(v));
   }
+  const panel = (m.side_panel as Json | undefined)?.default_path;
+  if (typeof panel === "string") files.add(panel);
   if (typeof m.options_page === "string") files.add(m.options_page);
   const ui = (m.options_ui as Json | undefined)?.page;
   if (typeof ui === "string") files.add(ui);

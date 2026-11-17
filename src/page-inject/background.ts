@@ -1,5 +1,6 @@
 // Background handlers for page injection.
-// - Toolbar click (only fires when there is no popup) activates the current tab.
+// - Toolbar click (only fires when there is no popup) opens the side panel, then activates the current tab
+//   (ADR-012). openPanelOnActionClick stays false, or Chrome would stop firing action.onClicked.
 // - "inject:run" from an extension page (the popup's Run on this page button) activates a tab.
 // - "page:report" from the injected script's top frame is validated and handed to report-store.
 // - "report:last" returns the last saved report (null unless the storage module is selected).
@@ -20,9 +21,13 @@ const isPageReport = (m: unknown): m is PageReportMsg => isRecord(m) && m.type =
 const isReportLast = (m: unknown): m is ReportLast => isRecord(m) && m.type === "report:last";
 const extOrigin = () => chrome.runtime.getURL("");
 
+chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false }).catch((e: unknown) => console.warn("sidePanel.setPanelBehavior failed:", String(e)));
+
 chrome.action.onClicked.addListener((tab) => {
   if (tab.id === undefined) return;
   const tabId = tab.id;
+  // open() needs the user gesture, so it runs first with no await before it. Headless Chromium may refuse it.
+  chrome.sidePanel.open({ tabId }).catch((e: unknown) => console.warn("sidePanel.open failed:", String(e)));
   void activateTab(tabId).then(async (r) => {
     if (r.kind === "unavailable") {
       await chrome.action.setBadgeText({ tabId, text: "!" }).catch(() => {});

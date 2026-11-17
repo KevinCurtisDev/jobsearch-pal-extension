@@ -8,7 +8,7 @@ project's `dist/` folder (from Windows: `\\wsl.localhost\Ubuntu\<project path>\d
 rebuild, click the reload icon on the extension card, then reload the test tab.
 
 ## Every release
-- [ ] Installs with no unexpected permission warning (permissions: activeTab, scripting, storage).
+- [ ] Installs with no unexpected permission warning (permissions: activeTab, scripting, storage, sidePanel, alarms, notifications).
 - [ ] No errors on the extension card or in its service worker console (`chrome://extensions` → Inspect views).
 - [ ] Works on 3 real sites (e.g. a news site, a web app, a documentation page).
 - [ ] The extension runs on a normal web page when you click it (toolbar icon, or Run on this page in the popup). *(page-inject)*

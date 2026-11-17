@@ -16,7 +16,7 @@ Save job posts from the page you're on, track each application's status, set rem
 - Full-text search with MiniSearch (ADR-004).
 
 ## 5. Permissions, storage and privacy
-- Permission budget: [activeTab, scripting, storage, sidePanel, alarms, notifications] (ADR-006, applied in T0.4). No host permissions, no content scripts. `unlimitedStorage` only as optional, after spike S10. Minimum Chrome 120. Any change needs an ADR.
+- Permission budget: [activeTab, scripting, storage, sidePanel, alarms, notifications] (ADR-006, applied in T0.4: manifest, `extension.config.json`, check-dist). No host permissions, no content scripts. `unlimitedStorage` only as optional, after spike S10. Minimum Chrome 120. Any change needs an ADR.
 - Records live in IndexedDB through Dexie; `chrome.storage` holds small settings only (ADR-004). Zod validates every boundary.
 - Data stays on the device. No network requests, analytics or remote code (X1, X2).
 

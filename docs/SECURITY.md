@@ -4,7 +4,7 @@
 
 | Check | How it's enforced |
 |---|---|
-| Permissions are exactly [activeTab, scripting, storage], no host permissions or content scripts | `scripts/check-dist.ts` (verify) |
+| Permissions are exactly [activeTab, scripting, storage, sidePanel, alarms, notifications], no host permissions or content scripts | `scripts/check-dist.ts` (verify) |
 | No HTML sinks (`innerHTML`, `outerHTML`, `insertAdjacentHTML`, `document.write`, `DOMParser`) | ESLint (verify) |
 | No eval, `new Function`, remote scripts or imports | ESLint + `check-dist.ts` |
 | Strict extension-page CSP | `check-dist.ts` |

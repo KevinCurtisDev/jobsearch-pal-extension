@@ -18,4 +18,4 @@
   - Background reading of pages or always-on content scripts / host permissions
   - sidePanel, alarms and notifications permissions until the owner approves them as planned tasks
 - **Free vs paid:** Free
-- **Constraints:** permissions [activeTab, scripting, storage]; no server, accounts or analytics unless decided in DECISIONS.md.
+- **Constraints:** permissions [activeTab, scripting, storage, sidePanel, alarms, notifications] (ADR-006); no server, accounts or analytics unless decided in DECISIONS.md.

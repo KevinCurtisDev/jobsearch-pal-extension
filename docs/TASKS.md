@@ -37,7 +37,7 @@ lists the files it touches, so Claude reads only those. Helper: `node scripts/ta
 - **Done when:** `brand.ts` exports `BRAND_NAME` (from `PRODUCT.name`), `STORE_TITLE`, `PLATFORM_DOMAIN = "jobsearchpal.com"`; `messages.json` has `extName` "JobSearch Pal: Job Application Tracker", `extShortName`, `extDescription`; manifest uses `__MSG_*__` with `default_locale: "en"` and `_locales` is copied to `dist/`; `check-dist` resolves messages before the 75/12/132 length checks and requires `extName` to start with the config `name`; the brand scan fails on "jobpilot", "hearback", "offerlight" (case-insensitive) in `dist/` and shipped source, with a fixture proving it; smoke e2e resolves the localized name; `npm run verify` green
 - **Manual check:** `chrome://extensions` shows "JobSearch Pal: Job Application Tracker"
 
-### T0.4 Permission budget and side panel shell `[ ]`
+### T0.4 Permission budget and side panel shell `[x]`
 - **Goal:** apply ADR-006 and add a side panel that the toolbar icon opens while toolbar capture keeps working (ADR-012, option A).
 - **Files:** `extension.config.json`, `src/manifest.json`, `build.json`, `build.mjs`, `public/sidepanel.html`, `src/sidepanel/main.ts`, `src/ui/tokens.css`, `scripts/tokens-css.ts`, `src/page-inject/background.ts`, `scripts/dist-rules.ts`, `tests/unit/manifest.test.ts`, `tests/unit/dist-rules.test.ts`, `tests/e2e/sidepanel.spec.ts`, `CLAUDE.md`, `docs/SPEC.md`, `docs/PRIVACY.md`, `docs/STORE_LISTING.md`, `docs/REPO-MAP.md`
 - **Depends on:** T0.3

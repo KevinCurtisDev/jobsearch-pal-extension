@@ -15,6 +15,9 @@
 | `src/shared/validate.ts` | Validators for untrusted data |
 | `tests/e2e/` | Playwright e2e: fixtures.ts (extension loading, action click, real popup driver), pages/ (local test pages), *.spec.ts |
 | `src/page-inject/` | Injection pipeline in the service worker: activate.ts (probe, inject, classify), reasons.ts, background.ts (handlers) |
+| `src/sidepanel/main.ts`, `public/sidepanel.html` | Side panel (ADR-012): opened by the toolbar click; built with createElement |
+| `src/ui/tokens.css` | Base UI styles for extension pages; only `var(--…)` from the generated `dist/tokens.css`, no hex values |
+| `design/tokens.json`, `scripts/tokens-css.ts` | Design tokens; the build turns them into CSS variables (`dist/tokens.css`) |
 | `src/page/` | Script injected into pages (isolated world): main.ts creates the handle, view.ts shows results |
 | `src/storage/store.ts` | Typed storage keys: defineKey, read, write, remove, watch (storage module) |
 | `build.mjs`, `build.json` | esbuild bundling; entry points and static files |

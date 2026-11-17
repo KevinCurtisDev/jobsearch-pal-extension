@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { loadNetworkAllowlist, networkHits } from "../../scripts/dist-rules.ts";
+import { loadNetworkAllowlist, networkHits, referencedFiles } from "../../scripts/dist-rules.ts";
 
 const bad = readFileSync("tests/fixtures/network/bad-bundle.js", "utf8");
 
@@ -52,5 +52,12 @@ describe("G1 network audit", () => {
     expect(errors).toHaveLength(6);
     expect([...allowed]).toEqual(["https://ok.example"]);
     expect(loadNetworkAllowlist([]).errors).toEqual(["network-allow.json must be an object with an \"entries\" array"]);
+  });
+});
+
+describe("G4 referenced files", () => {
+  it("includes side_panel.default_path", () => {
+    expect(referencedFiles({ side_panel: { default_path: "panel/x.html" } })).toEqual(["panel/x.html"]);
+    expect(referencedFiles({ side_panel: { default_path: 3 } })).toEqual([]);
   });
 });

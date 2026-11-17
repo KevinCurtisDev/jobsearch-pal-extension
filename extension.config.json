@@ -27,15 +27,17 @@
       "Any network requests, servers, accounts or sync services",
       "AI features of any kind",
       "Auto-applying, form filling or submitting anything on the user's behalf",
-      "Background reading of pages or always-on content scripts / host permissions",
-      "sidePanel, alarms and notifications permissions until the owner approves them as planned tasks"
+      "Background reading of pages or always-on content scripts / host permissions"
     ]
   },
   "permissions": {
     "permissions": [
       "activeTab",
       "scripting",
-      "storage"
+      "storage",
+      "sidePanel",
+      "alarms",
+      "notifications"
     ],
     "hostPermissions": []
   },
