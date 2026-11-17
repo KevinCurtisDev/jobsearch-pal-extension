@@ -86,3 +86,9 @@
 - **Decision:** `dexie` 4.4.7 (Apache-2.0) and `zod` 4.6.7 (MIT), exact versions, no `^` or `~`. G1 allowlist (`scripts/network-allow.json`) holds exact strings only, each with a reason; no wildcard or pattern entries. Runtime licences limited to MIT, Apache-2.0, ISC, BSD-2-Clause, BSD-3-Clause, 0BSD.
 - **Why:** supply chain risk (R5) and X1.
 - **Consequences:** `npm audit --omit=dev` runs at release (`verify` must work offline); e2e stays outside `verify` and runs in `/verify-extension`. Bundle budgets are set after M1; axe needs a separate dev-dependency approval.
+
+## ADR-015 Merge M0 into main
+- **Status:** accepted (2026-11-17, owner)
+- **Decision:** merge `m0-gates-platform` into `main` (no fast-forward, local only; pushing is a separate approval).
+- **Why:** M0 exit criteria met: `npm run verify` green (73 unit tests), `test:e2e` 16/16, owner's manual Chrome checks in `docs/QA.md` passed.
+- **Consequences:** M1 planning starts from `main`. Open: `npm audit` 11 high (dev-only, picomatch 4.0.7 ReDoS, no upstream fix yet); revisit when a fixed picomatch is published.
