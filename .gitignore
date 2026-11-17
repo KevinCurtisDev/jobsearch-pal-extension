@@ -1,0 +1,14 @@
+node_modules/
+dist/
+release/
+coverage/
+playwright-report/
+test-results/
+*.log
+.DS_Store
+.env
+.env.*
+*.pem
+*.crx
+*.key
+.claude/settings.local.json

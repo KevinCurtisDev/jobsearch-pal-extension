@@ -1,0 +1,15 @@
+{
+  "entries": [
+    {
+      "out": "background",
+      "src": "src/background/index.ts",
+      "format": "esm"
+    },
+    {
+      "out": "page",
+      "src": "src/page/main.ts",
+      "format": "iife"
+    }
+  ],
+  "static": []
+}

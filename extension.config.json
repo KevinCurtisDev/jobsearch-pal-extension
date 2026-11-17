@@ -1,0 +1,51 @@
+{
+  "$comment": "Source of truth for this product's identity, modules and permission budget. Regenerate with: npm run create-extension -- --config <this file> --output <new folder>",
+  "configVersion": 1,
+  "name": "JobSearch Pal",
+  "shortName": "JobSearchPal",
+  "slug": "jobsearch-pal",
+  "description": "Save job posts from the page you're on, track each application's status, set reminders, back up and export. Free and local-only.",
+  "version": "0.1.0",
+  "modules": [
+    "e2e-playwright",
+    "page-inject",
+    "storage"
+  ],
+  "options": {},
+  "brief": {
+    "audience": "Job seekers applying to many roles across job boards and company career sites who want one private place to track them.",
+    "problem": "Applications get scattered across tabs, boards and spreadsheets; people lose track of where they applied, what stage each is at and when to follow up.",
+    "monetisation": "Free",
+    "features": [
+      "Save the posting on the current page with one click: reads schema.org JobPosting data and supported job-board pages, only when the user clicks",
+      "Side panel listing saved jobs with an editable application status (saved, applied, interviewing, offer, rejected, withdrawn) and notes",
+      "Per-application follow-up reminders shown as Chrome notifications",
+      "Back up and restore all data as a JSON file, and export to CSV",
+      "Everything stored locally in chrome.storage; no network requests"
+    ],
+    "outOfScope": [
+      "Any network requests, servers, accounts or sync services",
+      "AI features of any kind",
+      "Auto-applying, form filling or submitting anything on the user's behalf",
+      "Background reading of pages or always-on content scripts / host permissions",
+      "sidePanel, alarms and notifications permissions until the owner approves them as planned tasks"
+    ]
+  },
+  "permissions": {
+    "permissions": [
+      "activeTab",
+      "scripting",
+      "storage"
+    ],
+    "hostPermissions": []
+  },
+  "factory": {
+    "version": "0.4.0",
+    "modules": {
+      "core": "1.0.0",
+      "e2e-playwright": "1.0.0",
+      "page-inject": "1.0.0",
+      "storage": "1.0.0"
+    }
+  }
+}

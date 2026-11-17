@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Conventional Commits, optionally with a task ID: "feat(popup): T1.2 show page title"
+MSG=$(head -n1 "$1")
+if ! echo "$MSG" | grep -Eq '^(feat|fix|refactor|perf|test|docs|chore|build|ci|style|revert)(\([a-z0-9-]+\))?!?: .{3,}'; then
+  echo "✖ Commit message must follow Conventional Commits, e.g. 'feat(popup): T1.2 show page title'"
+  exit 1
+fi

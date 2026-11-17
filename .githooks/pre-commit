@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Fast gate before every commit: typecheck, lint, unit tests. The full gate is `npm run verify`.
+set -e
+npm run -s typecheck
+npm run -s lint
+npm run -s test -- --reporter=dot
