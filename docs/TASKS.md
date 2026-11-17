@@ -21,7 +21,7 @@ lists the files it touches, so Claude reads only those. Helper: `node scripts/ta
 - **Done when:** an ESLint block for `src/core/**` adds restricted globals and imports (adds rules only); `npm run typecheck` also runs `tsc -p tsconfig.core.json --noEmit` (lib ES2023, no DOM or chrome types); a unit test lints a `src/core/` fixture using `chrome.` and expects an error; `npm run verify` green
 - **Manual check:** none
 
-### T0.2 Network audit gate (G1) `[ ]`
+### T0.2 Network audit gate (G1) `[x]`
 - **Goal:** `check-dist` fails on network APIs and unlisted external URLs in built JS, HTML, CSS and JSON.
 - **Files:** `scripts/dist-rules.ts`, `scripts/check-dist.ts`, `scripts/network-allow.json`, `tests/unit/dist-rules.test.ts`, `tests/fixtures/network/bad-bundle.js`
 - **Depends on:** none

@@ -2,7 +2,7 @@
 // Run by `npm run verify`. Fails with a list of problems.
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
-import { bannedCode, checkManifest, referencedFiles, type Budget } from "./dist-rules.ts";
+import { bannedCode, checkManifest, loadNetworkAllowlist, networkHits, referencedFiles, type Budget } from "./dist-rules.ts";
 
 const dist = "dist";
 const errors: string[] = [];
@@ -10,13 +10,17 @@ const manifest = JSON.parse(readFileSync(join(dist, "manifest.json"), "utf8")) a
 const config = JSON.parse(readFileSync("extension.config.json", "utf8")) as { permissions: Budget };
 const pkg = JSON.parse(readFileSync("package.json", "utf8")) as { version: string };
 
+const network = loadNetworkAllowlist(JSON.parse(readFileSync("scripts/network-allow.json", "utf8")));
+errors.push(...network.errors.map((e) => `scripts/network-allow.json ${e}`));
 errors.push(...checkManifest(manifest, config.permissions, pkg.version));
 for (const f of referencedFiles(manifest)) if (!existsSync(join(dist, f))) errors.push(`manifest references missing file ${f}`);
 
 const walk = (d: string): string[] => readdirSync(d).flatMap((f) => (statSync(join(d, f)).isDirectory() ? walk(join(d, f)) : [join(d, f)]));
 for (const file of walk(dist)) {
-  if (!/\.(m?js|html)$/.test(file)) continue;
-  for (const hit of bannedCode(readFileSync(file, "utf8"))) errors.push(`${relative(dist, file)}: ${hit}`);
+  if (!/\.(m?js|html|css|json)$/.test(file)) continue;
+  const text = readFileSync(file, "utf8");
+  if (/\.(m?js|html)$/.test(file)) for (const hit of bannedCode(text)) errors.push(`${relative(dist, file)}: ${hit}`);
+  for (const hit of networkHits(text, network.allowed)) errors.push(`${relative(dist, file)}: G1 network: ${hit}`);
 }
 
 if (errors.length) {
@@ -24,4 +28,4 @@ if (errors.length) {
   process.exit(1);
 }
 const perms = config.permissions.permissions;
-console.log(`✔ dist/ OK: Manifest V3, permissions [${perms.join(", ") || "none"}], no remote code`);
+console.log(`✔ dist/ OK: Manifest V3, permissions [${perms.join(", ") || "none"}], no remote code, no network`);

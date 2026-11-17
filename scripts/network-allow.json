@@ -1,0 +1,6 @@
+{
+  "entries": [
+    { "url": "https://chrome.google.com/webstore", "reason": "Restricted-page prefix in src/page-inject/reasons.ts (Chrome blocks scripting on the old Web Store); compared as a string, never requested." },
+    { "url": "https://chromewebstore.google.com", "reason": "Restricted-page prefix in src/page-inject/reasons.ts (Chrome blocks scripting on the Web Store); compared as a string, never requested." }
+  ]
+}

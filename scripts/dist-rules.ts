@@ -61,3 +61,53 @@ const BANNED_CODE: [RegExp, string][] = [
 export function bannedCode(text: string): string[] {
   return BANNED_CODE.filter(([re]) => re.test(text)).map(([, label]) => label);
 }
+
+// G1 network audit (SPEC §6). The extension makes no network requests (X1), so built files may not
+// contain network APIs or external URLs. URLs listed in scripts/network-allow.json are exempt; each
+// entry is an exact string with a reason. Never add wildcards or patterns.
+
+const NETWORK_APIS: [RegExp, string][] = [
+  [/\bfetch\s*\(/g, "fetch("],
+  [/\bXMLHttpRequest\b/g, "XMLHttpRequest"],
+  [/\bWebSocket\b/g, "WebSocket"],
+  [/\bEventSource\b/g, "EventSource"],
+  [/\bsendBeacon\b/g, "sendBeacon"],
+  [/\bimport\s*\(\s*["'`]https?:/g, "remote import()"]
+];
+const URL_RE = /https?:\/\/[^\s"'`<>()\\,;]+/g;
+const PATTERN_CHARS = /[*^$|\\()[\]{}\s]/;
+
+export type NetworkAllowlist = { allowed: Set<string>; errors: string[] };
+
+/** Validates the parsed scripts/network-allow.json: { entries: [{ url, reason }] }, exact URLs only. */
+export function loadNetworkAllowlist(json: unknown): NetworkAllowlist {
+  const allowed = new Set<string>();
+  const entries = (json as Json | null)?.entries;
+  if (!json || typeof json !== "object" || Array.isArray(json) || !Array.isArray(entries)) {
+    return { allowed, errors: ['network-allow.json must be an object with an "entries" array'] };
+  }
+  const errors: string[] = [];
+  entries.forEach((e: unknown, i) => {
+    const entry = e as Json | null;
+    const url = entry && typeof entry === "object" ? entry.url : undefined;
+    const reason = entry && typeof entry === "object" ? entry.reason : undefined;
+    if (typeof url !== "string" || !/^https?:\/\/./.test(url)) errors.push(`entry ${i}: url must be an http(s) URL string`);
+    else if (PATTERN_CHARS.test(url)) errors.push(`entry ${i}: "${url}" looks like a wildcard or pattern; use exact strings`);
+    else if (typeof reason !== "string" || !reason.trim()) errors.push(`entry ${i}: "${url}" needs a reason`);
+    else allowed.add(url);
+  });
+  return { allowed, errors };
+}
+
+/** Network APIs and non-allowlisted URLs in a built file, one message per hit with line:column. */
+export function networkHits(text: string, allowed: ReadonlySet<string>): string[] {
+  const hits: { at: number; msg: string }[] = [];
+  for (const [re, label] of NETWORK_APIS) for (const m of text.matchAll(re)) hits.push({ at: m.index, msg: label });
+  for (const m of text.matchAll(URL_RE)) if (!allowed.has(m[0])) hits.push({ at: m.index, msg: `external URL ${m[0]}` });
+  hits.sort((a, b) => a.at - b.at);
+  return hits.map(({ at, msg }) => {
+    const before = text.slice(0, at);
+    const line = before.split("\n").length;
+    return `${msg} at ${line}:${at - before.lastIndexOf("\n")}`;
+  });
+}
