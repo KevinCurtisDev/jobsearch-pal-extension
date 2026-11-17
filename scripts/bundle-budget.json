@@ -1,0 +1,14 @@
+{
+  "$comment": "dist/ size limits in bytes: the M1 baseline (docs/QA.md, 2026-11-17) + 25%, rounded up (ADR-022). Checked by scripts/check-dist.ts. Raising a limit needs the owner.",
+  "files": {
+    "_locales/en/messages.json": 693,
+    "background.js": 179169,
+    "manifest.json": 1200,
+    "page.js": 48572,
+    "sidepanel.html": 453,
+    "sidepanel.js": 187143,
+    "tokens.css": 4350,
+    "ui/tokens.css": 6013
+  },
+  "total": 427590
+}

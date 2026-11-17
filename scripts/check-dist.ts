@@ -1,10 +1,10 @@
 // Checks dist/ after a build: permission budget, locales, manifest limits, referenced files, no remote
-// code, no network (G1), no old brand names in dist/ or shipped source (G6).
+// code, no network (G1), no old brand names in dist/ or shipped source (G6), bundle size budget (ADR-022).
 // Run by `npm run verify`. Fails with a list of problems.
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import {
-  bannedCode, brandHits, checkLocale, checkManifest, loadMessages, loadNetworkAllowlist, networkHits, referencedFiles, resolveMessages, type Budget
+  bannedCode, brandHits, checkBundleBudget, checkLocale, checkManifest, loadBundleBudget, loadMessages, loadNetworkAllowlist, networkHits, referencedFiles, resolveMessages, type Budget
 } from "./dist-rules.ts";
 
 const dist = "dist";
@@ -22,13 +22,20 @@ const resolved = resolveMessages(manifest, locale.messages);
 errors.push(...resolved.errors, ...checkManifest(resolved.manifest, config.permissions, pkg.version));
 for (const f of referencedFiles(manifest)) if (!existsSync(join(dist, f))) errors.push(`manifest references missing file ${f}`);
 
+const bundle = loadBundleBudget(JSON.parse(readFileSync("scripts/bundle-budget.json", "utf8")));
+errors.push(...bundle.errors.map((e) => `scripts/bundle-budget.json ${e}`));
+
 const walk = (d: string): string[] => readdirSync(d).flatMap((f) => (statSync(join(d, f)).isDirectory() ? walk(join(d, f)) : [join(d, f)]));
+const sizes: Record<string, number> = {};
 for (const file of walk(dist)) {
   if (!/\.(m?js|html|css|json)$/.test(file)) continue;
+  sizes[relative(dist, file).split("\\").join("/")] = statSync(file).size;
   const text = readFileSync(file, "utf8");
   if (/\.(m?js|html)$/.test(file)) for (const hit of bannedCode(text)) errors.push(`${relative(dist, file)}: ${hit}`);
   for (const hit of networkHits(text, network.allowed)) errors.push(`${relative(dist, file)}: G1 network: ${hit}`);
 }
+
+errors.push(...checkBundleBudget(sizes, bundle.budget));
 
 // G6: every file in dist/ and the shipped source (docs/ is not scanned).
 const shipped = [dist, "src", "public", "_locales"].filter(existsSync).flatMap(walk).concat(["build.json", "extension.config.json"]);
@@ -39,4 +46,4 @@ if (errors.length) {
   process.exit(1);
 }
 const perms = config.permissions.permissions;
-console.log(`✔ dist/ OK: Manifest V3, permissions [${perms.join(", ") || "none"}], locales resolved, no remote code, no network, no old brand names`);
+console.log(`✔ dist/ OK: Manifest V3, permissions [${perms.join(", ") || "none"}], locales resolved, no remote code, no network, no old brand names, within bundle budget`);

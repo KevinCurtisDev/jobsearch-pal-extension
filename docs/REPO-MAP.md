@@ -33,7 +33,7 @@
 | `src/sidepanel/backup.ts` | Back up and restore section: export download, file import with dry-run and confirm |
 | `src/storage/store.ts` | Typed storage keys: defineKey, read, write, remove, watch (storage module) |
 | `build.mjs`, `build.json` | esbuild bundling; entry points and static files |
-| `scripts/check-dist.ts`, `scripts/dist-rules.ts` | Post-build gate: permissions, CSP, locales, files, no remote code, G1 network (`scripts/network-allow.json`), G6 brand scan |
+| `scripts/check-dist.ts`, `scripts/dist-rules.ts` | Post-build gate: permissions, CSP, locales, files, no remote code, G1 network (`scripts/network-allow.json`), G6 brand scan, bundle budget (`scripts/bundle-budget.json`, ADR-022) |
 | `scripts/licence-check.ts` | Licence gate (in `verify`): allowed runtime licences, exact versions (ADR-014) |
 | `scripts/package.ts` | Deterministic store zip into `release/` |
 | `scripts/measure.ts` | Instruction size and gate timing report |

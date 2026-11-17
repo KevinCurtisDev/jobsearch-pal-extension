@@ -41,4 +41,4 @@ Save job posts from the page you're on, track each application's status, set rem
 ## 7. Non-goals (M1)
 - No status or notes editing, tags, kanban, dedupe, reminders (alarms, notifications), CSV, encrypted export, adapters other than JSON-LD and Greenhouse, or search (M2 onwards).
 - No new permissions (including `downloads`) and no new runtime dependencies.
-- Bundle budgets: M1 records sizes only; limits are set from that baseline.
+- Bundle budgets: M1 baseline + 25% per `dist/` file and in total (ADR-022, `scripts/bundle-budget.json`, enforced by check-dist).

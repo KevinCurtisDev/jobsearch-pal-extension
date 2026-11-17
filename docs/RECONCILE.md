@@ -198,7 +198,7 @@ Also blocking per the sources: approval of docs/16, docs/17, ADR 0007 and ADR 00
 
 ### Other items needing your input
 
-1. Default status list (C8): the spec's 14 are not in the repo. Pick one: 16's six, the brief's six, or send the spec.
+1. ~~Default status list (C8)~~: decided, the brief's six (ADR-021).
 2. "Did you apply?" (C5): click-triggered variant in Phase 1, or defer.
 3. Stage odds and "Should I move?" need `content/hiring_stages.json` and the self-check logic (M3, M4): send them, or move these to a later milestone.
 4. Design surfaces (M2): send the canvas link or screens, or approve building Phase 1 from `design/tokens.json` plus the written behaviour in 16/17.

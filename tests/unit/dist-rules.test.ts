@@ -61,3 +61,27 @@ describe("G4 referenced files", () => {
     expect(referencedFiles({ side_panel: { default_path: 3 } })).toEqual([]);
   });
 });
+
+describe("bundle budget (ADR-022)", async () => {
+  const { checkBundleBudget, loadBundleBudget } = await import("../../scripts/dist-rules.ts");
+  const budget = { files: { "a.js": 100, "b.css": 10 }, total: 105 };
+
+  it("passes files within their limits and the total", () => {
+    expect(checkBundleBudget({ "a.js": 90, "b.css": 10 }, budget)).toEqual([]);
+  });
+
+  it("reports a file over its limit, a file with no limit, and the total", () => {
+    expect(checkBundleBudget({ "a.js": 101, "b.css": 5, "new.js": 1 }, budget)).toEqual([
+      "bundle budget: a.js is 101 bytes, limit 100",
+      "bundle budget: new.js has no limit in scripts/bundle-budget.json",
+      "bundle budget: total is 107 bytes, limit 105",
+    ]);
+  });
+
+  it("loads a valid budget file and rejects bad ones", () => {
+    expect(loadBundleBudget({ $comment: "x", files: { "a.js": 1 }, total: 2 })).toEqual({ budget: { files: { "a.js": 1 }, total: 2 }, errors: [] });
+    expect(loadBundleBudget({ files: { "a.js": -1 }, total: 2 }).errors).toEqual(["files.a.js must be a positive integer"]);
+    expect(loadBundleBudget({ files: {}, total: 1.5 }).errors).toEqual(["total must be a positive integer"]);
+    expect(loadBundleBudget(null).errors).toEqual(["must be an object with files and total"]);
+  });
+});

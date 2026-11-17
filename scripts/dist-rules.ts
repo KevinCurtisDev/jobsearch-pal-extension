@@ -174,3 +174,38 @@ const OLD_NAMES = /jobpilot|hearback|offerlight/gi;
 export function brandHits(text: string): string[] {
   return [...text.matchAll(OLD_NAMES)].map((m) => `old name "${m[0]}" at ${lineCol(text, m.index)}`);
 }
+
+/** Size limits for dist/ files in bytes (ADR-022: M1 baseline + 25%). Paths are relative to dist/. */
+export type BundleBudget = { files: Record<string, number>; total: number };
+
+const positiveInt = (n: unknown): n is number => typeof n === "number" && Number.isInteger(n) && n > 0;
+
+/** Validates scripts/bundle-budget.json. */
+export function loadBundleBudget(json: unknown): { budget: BundleBudget; errors: string[] } {
+  const empty = { budget: { files: {}, total: 0 }, errors: ["must be an object with files and total"] };
+  if (json === null || typeof json !== "object") return empty;
+  const j = json as Record<string, unknown>;
+  if (j.files === null || typeof j.files !== "object" || Array.isArray(j.files)) return empty;
+  const errors: string[] = [];
+  const files: Record<string, number> = {};
+  for (const [name, limit] of Object.entries(j.files as Record<string, unknown>)) {
+    if (positiveInt(limit)) files[name] = limit;
+    else errors.push(`files.${name} must be a positive integer`);
+  }
+  if (!positiveInt(j.total)) errors.push("total must be a positive integer");
+  return { budget: { files, total: positiveInt(j.total) ? j.total : 0 }, errors };
+}
+
+/** One message per file over its limit or without one, and for the total. `sizes`: bytes per dist/ path. */
+export function checkBundleBudget(sizes: Record<string, number>, budget: BundleBudget): string[] {
+  const errors: string[] = [];
+  let total = 0;
+  for (const [name, bytes] of Object.entries(sizes).sort(([a], [b]) => (a < b ? -1 : 1))) {
+    total += bytes;
+    const limit = budget.files[name];
+    if (limit === undefined) errors.push(`bundle budget: ${name} has no limit in scripts/bundle-budget.json`);
+    else if (bytes > limit) errors.push(`bundle budget: ${name} is ${bytes} bytes, limit ${limit}`);
+  }
+  if (total > budget.total) errors.push(`bundle budget: total is ${total} bytes, limit ${budget.total}`);
+  return errors;
+}

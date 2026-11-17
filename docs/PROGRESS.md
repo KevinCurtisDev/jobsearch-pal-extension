@@ -5,8 +5,8 @@
 - **Milestone:** M1 Checkpoint A, vertical slice: done, verified, merged into `main` (ADR-019) and pushed to origin (owner, 2026-11-17).
 - **Last done:** 2026-11-17 T1.8: `@axe-core/playwright` 4.14.0 (exact, dev, ADR-016); a11y.spec (empty, review, errors, list, import dry-run + canary); slice.spec (acceptance 1 and 4 end to end, header maps all six); offline.spec covers capture → save → export → import; bundle sizes in `npm run measure`, M1 baseline in `docs/QA.md`.
 - **Next step:** `/plan-feature` for M2. No release until Phase 1 (E1) is complete (ADR-020); `release-0.2.0` branch parked with listing/privacy drafts.
-- **Owner QA:** M1 checklist passed in Chrome 158 (2026-11-17); S13 `ok: false` both settings (ADR-013). Waiting: confirm the six statuses (RECONCILE C8) before M2; set bundle limits from the baseline.
-- **Gates (2026-11-17, after the location fix):** `npm run verify` green (162 unit tests); `test:e2e` 36/36; `npm audit --omit=dev` 0; full audit 11 high, all GHSA-fc5q-39xc-vjpf (picomatch, dev-only, ADR-018). Permissions still the six.
+- **Owner QA:** M1 checklist passed in Chrome 158 (2026-11-17); S13 `ok: false` both settings (ADR-013). Decided: statuses = the brief's six (ADR-021); bundle budget = M1 baseline + 25%, enforced by check-dist (ADR-022).
+- **Gates (2026-11-17, after the location fix):** `npm run verify` green (165 unit tests); `test:e2e` 36/36; `npm audit --omit=dev` 0; full audit 11 high, all GHSA-fc5q-39xc-vjpf (picomatch, dev-only, ADR-018). Permissions still the six.
 - **Bundle baseline (prod):** 342,072 B / 112,851 B gzip total (sidepanel.js 149.7 kB, background.js 143.3 kB, page.js 38.9 kB).
 - **Import rules:** a file job whose draftId is stored under another id is invalid (with its events); events for unknown jobs or a mismatched application are invalid. Backup omits `applications` (projections).
 - **Note:** G1 flags `http://` in any shipped string, including UI text; word messages without scheme literals.
@@ -30,3 +30,4 @@
 - 2026-11-17 · T1.7 · core/backup.ts (canonical JSON + injected SHA-256, readBackup errors, planImport merge by id); storage importBackup one transaction; panel export/dry-run/confirm; e2e fresh-profile identical log, idempotent re-import, bad files, cancel
 - 2026-11-17 · T1.8 · @axe-core/playwright 4.14.0 exact (ADR-016); a11y.spec with canary; slice.spec acceptance 1 and 4; offline capture→save→export→import; measure.ts bundle sizes, M1 baseline + M1 checklist in QA.md
 - 2026-11-17 · fix · Greenhouse location: split on ; and |, drop repeats ("NYC; SF | NYC" → "NYC; SF"), seen on live job-boards pages
+- 2026-11-17 · ADR-021/022 · statuses = brief's six; bundle budget (baseline + 25%) in scripts/bundle-budget.json, checked by check-dist with unit tests

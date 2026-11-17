@@ -122,3 +122,15 @@
 - **Decision:** no Chrome Web Store release until all Phase 1 (E1) milestones are done. The `release-0.2.0` branch (version bump, CHANGELOG entry, store listing and privacy drafts, commit `d24e9b2`) stays local and unmerged; no tag.
 - **Why:** owner's call after `/prepare-release 0.2.0`; M1 alone isn't the product to ship.
 - **Consequences:** `main` stays at 0.1.0. At release time, rerun `/prepare-release` and reuse the drafts from `release-0.2.0`. Open before any release: own icons (placeholders today); short description promises reminders; `alarms`/`notifications` unused until reminders ship (Web Store may reject unused permissions); support email, privacy URL, screenshots.
+
+## ADR-021 Default application statuses (RECONCILE C8)
+- **Status:** accepted (2026-11-17, owner)
+- **Decision:** the six statuses from the product brief, in this order: saved, applied, interviewing, offer, rejected, withdrawn (labels Saved, Applied, Interviewing, Offer, Rejected, Withdrawn). Not 16's six (Screening, Interview, Closed) and not 17's unseen 14.
+- **Why:** they match the brief and the M1 code; the owner viewed all six in the panel (demo backup import, 2026-11-17).
+- **Consequences:** `STATUSES` in `src/core/model.ts` is unchanged. M2 status editing uses these six; 17's seven reporting groups stay the fixed analytic set (RECONCILE C8).
+
+## ADR-022 Bundle budget: M1 baseline + 25%
+- **Status:** accepted (2026-11-17, owner)
+- **Decision:** each `dist/` file (js, css, html, json) has a raw-byte limit of its M1 baseline (`docs/QA.md`) + 25%, rounded up, plus a total limit (427,590 bytes). Limits live in `scripts/bundle-budget.json`; `scripts/check-dist.ts` fails the build when a file is over, or when a new file has no limit.
+- **Why:** SPEC §6: M1 records sizes, limits are set from that baseline.
+- **Consequences:** a new bundle or a raised limit needs the owner and an update to `scripts/bundle-budget.json`. Images aren't budgeted. Headroom today: sidepanel.js 149,714 of 187,143; background.js 143,335 of 179,169; page.js 39,050 of 48,572.
