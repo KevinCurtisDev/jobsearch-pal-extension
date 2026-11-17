@@ -3,9 +3,11 @@
 //   npm run measure -- --gate  also times `npm run verify`
 //   npm run measure -- --json  machine-readable output
 // Sizes are bytes, lines and words. This script does not estimate tokens or savings.
+// When dist/ exists it also reports the built bundle: bytes and gzip bytes per file (M1 baseline, SPEC §6).
 import { execSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
-import { join } from "node:path";
+import { join, relative } from "node:path";
+import { gzipSync } from "node:zlib";
 
 type Row = { file: string; loaded: string; bytes: number; lines: number; words: number };
 const rows: Row[] = [];
@@ -54,6 +56,18 @@ if (process.argv.includes("--gate")) {
 const srcFiles = (d: string): number => (existsSync(d) ? readdirSync(d).reduce((n, f) => n + (statSync(join(d, f)).isDirectory() ? srcFiles(join(d, f)) : 1), 0) : 0);
 result.sourceFiles = srcFiles("src");
 
+type BundleRow = { file: string; bytes: number; gzip: number };
+const walk = (d: string): string[] => readdirSync(d).sort().flatMap((f) => (statSync(join(d, f)).isDirectory() ? walk(join(d, f)) : [join(d, f)]));
+const bundle: BundleRow[] = existsSync("dist")
+  ? walk("dist")
+      .filter((f) => /\.(js|css|html|json)$/.test(f))
+      .map((f) => {
+        const b = readFileSync(f);
+        return { file: relative("dist", f), bytes: b.length, gzip: gzipSync(b, { level: 9 }).length };
+      })
+  : [];
+if (bundle.length > 0) result.bundle = { files: bundle, totalBytes: bundle.reduce((a, r) => a + r.bytes, 0), totalGzip: bundle.reduce((a, r) => a + r.gzip, 0) };
+
 if (process.argv.includes("--json")) {
   console.log(JSON.stringify(result, null, 2));
 } else {
@@ -61,4 +75,10 @@ if (process.argv.includes("--json")) {
   for (const r of rows) console.log(`${r.loaded.padEnd(17).slice(0, 17)} ${String(r.bytes).padStart(6)} ${String(r.lines).padStart(6)} ${String(r.words).padStart(6)}  ${r.file}`);
   console.log(`\nAlways loaded: ${always} bytes. Model-invocable skill descriptions: ${descBytes} bytes. Source files: ${String(result.sourceFiles)}.`);
   if (result.verify) console.log(`npm run verify: ${JSON.stringify(result.verify)}`);
+  if (bundle.length > 0) {
+    console.log("\nBundle (dist/)     Bytes    Gzip  File");
+    for (const r of bundle) console.log(`${" ".repeat(13)}${String(r.bytes).padStart(9)} ${String(r.gzip).padStart(7)}  ${r.file}`);
+    const t = result.bundle as { totalBytes: number; totalGzip: number };
+    console.log(`${" ".repeat(13)}${String(t.totalBytes).padStart(9)} ${String(t.totalGzip).padStart(7)}  total`);
+  }
 }

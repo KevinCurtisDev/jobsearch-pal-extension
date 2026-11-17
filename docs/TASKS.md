@@ -69,7 +69,7 @@ lists the files it touches, so Claude reads only those. Helper: `node scripts/ta
 - **Done when:** export is a versioned JSON file with a SHA-256 checksum, downloaded through a blob URL and an `<a download>` link (no `downloads` permission); import rejects corrupt, over-10 MB, wrong-version and bad-checksum files with plain messages; the dry-run shows new / already present / invalid counts; confirmed import writes through `src/storage/jobs.ts` in one transaction with the same Zod schemas as `SAVE_JOB`; importing the same file twice adds nothing (idempotent by event id); export then import into a fresh profile gives an identical event log (e2e); `npm run verify` and `npm run test:e2e` green
 - **Manual check:** export, remove and reinstall the extension, import, and see the job back
 
-### T1.8 Slice acceptance: axe, offline and sizes `[ ]`
+### T1.8 Slice acceptance: axe, offline and sizes `[x]`
 - **Goal:** prove the six 17 §10 acceptance tests and record the M1 bundle sizes.
 - **Files:** `package.json`, `package-lock.json`, `tests/e2e/a11y.spec.ts`, `tests/e2e/offline.spec.ts`, `tests/e2e/slice.spec.ts`, `docs/QA.md`, `docs/PROGRESS.md`
 - **Depends on:** T1.7

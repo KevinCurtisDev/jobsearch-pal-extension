@@ -2,15 +2,13 @@
 
 ## Current state
 *Rewritten at the end of every session (15 lines or fewer). A new session starts here.*
-- **Milestone:** M1 Checkpoint A, vertical slice, on branch `m1-vertical-slice` (T1.1–T1.7 done; T1.8 open).
-- **Last done:** 2026-11-17 T1.7: panel "Back up and restore": export = `jobsearch-pal-backup` v1 JSON (jobs + event log, SHA-256 over canonical JSON) via blob URL + `<a download>`; import checks size/JSON/format/version/checksum/Zod, dry-run counts, confirmed import via `importBackup` in `src/storage/jobs.ts` (one transaction, merge by id, applications rebuilt from events).
-- **Next step:** `/implement-task T1.8` (adds `@axe-core/playwright`: ADR-016 covers it; confirm with the owner if unsure).
-- **Waiting for the owner:** repeat S13 in desktop Chrome (`docs/QA.md` M1, first item) and record the version and result. Confirm the six statuses (RECONCILE C8) before M2 status editing.
-- **Manual checks pending in Chrome:** S13 (T1.1); T1.5: icon on a real Greenhouse posting and on linkedin.com; T1.6: save a job and see it listed; Tab through the whole flow at 320 px; T1.7: export, remove and reinstall, import, see the job back.
-- **Gates:** `npm run verify` green (160 unit tests); `test:e2e` 31/31 at T1.7. G1 allowlist 4 entries.
-- **Conditions (ADR-017):** session storage at default access level; no new permission, including `downloads`.
-- **Import rules:** a file job whose draftId is stored under another id is counted invalid (with its events); events for unknown jobs or a mismatched application are invalid. Backup omits `applications` (projections).
-- **Gap:** F8's axe check is not automated yet (T1.8). e2e covers labels, 44 px, 320 px, keyboard flow, visible focus.
+- **Milestone:** M1 Checkpoint A, vertical slice, on branch `m1-vertical-slice`: all tasks T1.1–T1.8 done; milestone verification next.
+- **Last done:** 2026-11-17 T1.8: `@axe-core/playwright` 4.14.0 (exact, dev, ADR-016); a11y.spec (empty, review, errors, list, import dry-run + canary); slice.spec (acceptance 1 and 4 end to end, header maps all six); offline.spec covers capture → save → export → import; bundle sizes in `npm run measure`, M1 baseline in `docs/QA.md`.
+- **Next step:** `/verify-extension`, then the owner's M1 manual checklist in `docs/QA.md`, then `/prepare-release` (owner decides).
+- **Waiting for the owner:** the M1 checklist in `docs/QA.md` (S13 in desktop Chrome with version, capture/save, LinkedIn, keyboard at 320 px, backup round trip, bad backup, offline). Confirm the six statuses (RECONCILE C8) before M2 status editing. Set bundle limits from the baseline.
+- **Gates:** `npm run verify` green (160 unit tests); `test:e2e` 36/36 at T1.8. G1 allowlist 4 entries. Permissions still the six (ADR-006).
+- **Bundle baseline (prod):** 342,072 B / 112,851 B gzip total (sidepanel.js 149.7 kB, background.js 143.3 kB, page.js 38.9 kB).
+- **Import rules:** a file job whose draftId is stored under another id is invalid (with its events); events for unknown jobs or a mismatched application are invalid. Backup omits `applications` (projections).
 - **Note:** G1 flags `http://` in any shipped string, including UI text; word messages without scheme literals.
 - **Note:** e2e opens `sidepanel.html` in a tab; the review form owns the only `role="status"`; the backup status is `#backup-status` (aria-live).
 - **Note:** modules using Zod import `zod/mini` plus `src/shared/zod-guard.ts`. `src/core` has no `URL` global or Web Crypto (digest injected).
@@ -30,3 +28,4 @@
 - 2026-11-17 · T1.5 · CAPTURE_JOB to frame 0 with Zod reply check; X3 host matching by registrable domain (look-alike tests); per-tab drafts in storage.session (content scripts denied, e2e); URL-only drafts; view.ts and report messages removed; e2e JSON-LD, malformed, Greenhouse, LinkedIn
 - 2026-11-17 · T1.6 · SAVE_JOB v1 (save.ts, extension pages only, { jobId }); panel review form (draftFromForm, manual provenance for edits/paste), list from Dexie; e2e keyboard flow, 44 px at 320 px, hostile text, URL-only paste, errors
 - 2026-11-17 · T1.7 · core/backup.ts (canonical JSON + injected SHA-256, readBackup errors, planImport merge by id); storage importBackup one transaction; panel export/dry-run/confirm; e2e fresh-profile identical log, idempotent re-import, bad files, cancel
+- 2026-11-17 · T1.8 · @axe-core/playwright 4.14.0 exact (ADR-016); a11y.spec with canary; slice.spec acceptance 1 and 4; offline capture→save→export→import; measure.ts bundle sizes, M1 baseline + M1 checklist in QA.md

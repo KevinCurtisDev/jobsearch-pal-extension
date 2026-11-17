@@ -31,6 +31,24 @@ rebuild, click the reload icon on the extension card, then reload the test tab.
   5. With `openPanelOnActionClick` on: `chrome://extensions` → JobSearch Pal → "service worker" → Console: `chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true })`. Repeat steps 1–4 (expected the same). Then reload the extension on `chrome://extensions`; it sets the setting back to off.
   6. Note your Chrome version and the two `window.__s13` results in the table below.
 
+- [ ] **Capture and save (T1.5, T1.6).** On a real Greenhouse job post, click the toolbar icon: the side panel shows "Review this job" with the title and company filled in. Click **Save job**: it appears under "Saved jobs" with "Status: Saved".
+- [ ] **LinkedIn (T1.5).** On a linkedin.com job post, click the icon: the panel explains that only the address and title are saved, and nothing on the page changes. Paste the description, save: it is listed.
+- [ ] **Keyboard at 320 px (T1.6, F8).** Make the side panel as narrow as it goes. With Tab, Shift+Tab and Enter only, edit a field, save, export and import: every control is reachable, focus is always visible, nothing is cut off.
+- [ ] **Backup round trip (T1.7).** Click **Export backup**: a file `jobsearch-pal-backup-<date>.json` downloads (no permission prompt). Remove the extension, load it again, import the file: the dry-run shows "New jobs: N", click **Import**, the jobs are back. Import the same file again: "Nothing new to import".
+- [ ] **Bad backup (T1.7).** Edit one character in an exported file and import it: a plain message says the file was changed; nothing is added.
+- [ ] **Offline (X1).** In the service worker and panel DevTools Network tabs, capture, save, export and import: no external requests.
+
+### M1 bundle baseline (T1.8, `npm run measure` after `npm run build`, 2026-11-17)
+Production build; limits are set from this baseline (SPEC §6).
+
+| File | Bytes | Gzip |
+|---|---:|---:|
+| background.js | 143,335 | 47,294 |
+| sidepanel.js | 149,714 | 49,329 |
+| page.js | 38,857 | 13,115 |
+| sidepanel.html, tokens.css, ui/tokens.css, manifest.json, messages.json | 10,166 | 3,113 |
+| **Total** | **342,072** | **112,851** |
+
 ## Results
 | Date | Chrome version | Checks | Notes |
 |---|---|---|---|
