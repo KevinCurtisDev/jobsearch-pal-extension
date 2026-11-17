@@ -1,11 +1,13 @@
 // Offline e2e (SPEC §6, X1): the main flows make zero external requests. The `net` fixture aborts and
 // records anything that is not the local test origin or chrome-extension://. The canary tests prove the
 // guard sees page and service-worker requests, so a zero below is not a blind spot.
+import { createHash } from "node:crypto";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { createBackup, type BackupData } from "../../src/core/backup";
 import { expect, launchExtension, readyWorker, test } from "./fixtures";
-import { waitForAck } from "./page-helpers";
+import { handleState, waitForDraft } from "./page-helpers";
 
 const CANARY = "https://example.invalid/canary";
 
@@ -58,7 +60,7 @@ test("worker start makes no external requests (net log from launch)", async () =
 test("opening sidepanel.html makes no external requests", async ({ context, extensionId, net }) => {
   const page = await context.newPage();
   await page.goto(`chrome-extension://${extensionId}/sidepanel.html`);
-  await expect(page.getByRole("heading", { level: 2 })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2, name: "Saved jobs" })).toBeVisible();
   await page.waitForLoadState("networkidle");
   expect(net.external).toEqual([]);
 });
@@ -67,7 +69,42 @@ test("toolbar capture on basic.html makes no external requests", async ({ contex
   const page = await context.newPage();
   await page.goto(`${origin}/basic.html?offline`);
   await clickAction(page);
-  expect(await waitForAck(sw, page)).toMatchObject({ present: true, acked: true });
+  expect((await waitForDraft(sw, page)).mode).toBe("page");
+  expect(await handleState(sw, page)).toMatchObject({ present: true });
   await page.waitForLoadState("networkidle");
+  expect(net.external).toEqual([]);
+});
+
+test("capture, save, export and import make no external requests", async ({ context, origin, extensionId, sw, clickAction, net }) => {
+  const job = await context.newPage();
+  await job.goto(`${origin}/jsonld.html?offline-slice`);
+  await clickAction(job);
+  const entry = await waitForDraft(sw, job);
+
+  const panel = await context.newPage();
+  await panel.goto(`chrome-extension://${extensionId}/sidepanel.html`);
+  const tabId = await panel.evaluate(async () => (await chrome.tabs.getCurrent())!.id!);
+  await panel.evaluate(([key, value]) => chrome.storage.session.set({ [key as string]: value }), [`draft.${tabId}`, entry] as const);
+  await panel.getByRole("button", { name: "Save job" }).click();
+  await expect(panel.getByRole("listitem")).toHaveCount(1);
+
+  const [download] = await Promise.all([panel.waitForEvent("download"), panel.getByRole("button", { name: "Export backup" }).click()]);
+  const file = JSON.parse(readFileSync((await download.path())!, "utf8")) as { exportedAt: string; data: BackupData };
+
+  // A second job with fresh ids, so the import really writes. The checksum is recomputed for the new data.
+  const [j, e] = [file.data.jobs[0]!, file.data.events[0]!];
+  const swap = (id: string, last: string) => id.slice(0, -1) + (id.endsWith(last) ? "Z" : last);
+  const job2 = { ...j, id: swap(j.id, "Y"), draftId: swap(j.draftId, "Y") };
+  const event2 = { ...e, id: swap(e.id, "Y"), jobId: job2.id, applicationId: swap(e.applicationId, "Y") };
+  const sha = async (t: string) => createHash("sha256").update(t, "utf8").digest("hex");
+  const next = await createBackup({ jobs: [...file.data.jobs, job2], events: [...file.data.events, event2] }, file.exportedAt, sha);
+
+  await panel.getByLabel("Import a backup file").setInputFiles({ name: "backup.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(next)) });
+  await expect(panel.getByRole("group", { name: "Before you import" }).getByRole("listitem").first()).toHaveText("New jobs: 1");
+  await panel.getByRole("button", { name: "Import", exact: true }).click();
+  await expect(panel.getByRole("listitem")).toHaveCount(2);
+
+  await job.waitForLoadState("networkidle");
+  await panel.waitForLoadState("networkidle");
   expect(net.external).toEqual([]);
 });
