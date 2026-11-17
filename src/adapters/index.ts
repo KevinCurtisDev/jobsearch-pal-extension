@@ -3,7 +3,8 @@
 // manual one from the tab URL and title. Never throws on page data. X3 hosts are refused before
 // injection (src/page-inject), so this module is never reached there.
 import { extractJobPosting, MAX_JSONLD_CHARS, provenance, type CapturedFields } from "../core/jsonld";
-import { HttpUrlSchema, JobDraftSchema, LIMITS, type JobDraft } from "../core/model";
+import { manualDraft, MANUAL_TITLE_CONFIDENCE } from "../core/draft";
+import { HttpUrlSchema, JobDraftSchema, type JobDraft } from "../core/model";
 import { readGreenhouse } from "./greenhouse";
 
 export type CaptureDeps = { id: string; now: string };
@@ -11,8 +12,7 @@ type Adapter = (doc: Document, url: URL, at: string) => CapturedFields | null;
 
 export const ADAPTERS: readonly Adapter[] = [readGreenhouse];
 
-/** Confidence of a title taken from the tab title (often includes the site name). */
-export const MANUAL_TITLE_CONFIDENCE = 0.4;
+export { MANUAL_TITLE_CONFIDENCE };
 const MAX_SCRIPTS = 20;
 
 /** Text of each JSON-LD script on the page (bounded in count and size). */
@@ -28,11 +28,6 @@ function merge(primary: CapturedFields | null, extra: CapturedFields | null): Ca
   if (!primary) return extra;
   if (!extra) return primary;
   return { ...extra, ...primary };
-}
-
-function manualTitle(doc: Document, url: URL): string {
-  const t = doc.title.replace(/\s+/g, " ").trim().slice(0, LIMITS.title).trim();
-  return t || url.hostname;
 }
 
 /**
@@ -60,9 +55,5 @@ export function captureDraft(doc: Document, pageUrl: string, deps: CaptureDeps):
     const draft = JobDraftSchema.safeParse({ ...base, url: provenance(urlCheck.data, source, 1, at), ...found });
     if (draft.success) return draft.data;
   }
-  return JobDraftSchema.parse({
-    ...base,
-    url: provenance(urlCheck.data, "manual", 1, at),
-    title: provenance(manualTitle(doc, url), "manual", MANUAL_TITLE_CONFIDENCE, at),
-  });
+  return manualDraft(urlCheck.data, doc.title, deps);
 }

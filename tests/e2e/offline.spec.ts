@@ -5,7 +5,7 @@ import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, launchExtension, readyWorker, test } from "./fixtures";
-import { waitForAck } from "./page-helpers";
+import { handleState, waitForDraft } from "./page-helpers";
 
 const CANARY = "https://example.invalid/canary";
 
@@ -67,7 +67,8 @@ test("toolbar capture on basic.html makes no external requests", async ({ contex
   const page = await context.newPage();
   await page.goto(`${origin}/basic.html?offline`);
   await clickAction(page);
-  expect(await waitForAck(sw, page)).toMatchObject({ present: true, acked: true });
+  expect((await waitForDraft(sw, page)).mode).toBe("page");
+  expect(await handleState(sw, page)).toMatchObject({ present: true });
   await page.waitForLoadState("networkidle");
   expect(net.external).toEqual([]);
 });

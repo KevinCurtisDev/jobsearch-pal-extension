@@ -1,56 +1,43 @@
 // Injected into the page's isolated world by src/page-inject/activate.ts (never the page's own world,
-// so page scripts can't see or call it). Publishes one handle per page on window[PRODUCT.pageFlag];
-// the service worker's probe toggles it on later activations instead of injecting again.
+// so page scripts can't see or call it). It shows nothing and never changes the page: it publishes one
+// handle on window[PRODUCT.pageFlag] (so a repeat click doesn't inject again) and answers CAPTURE_JOB
+// from the service worker with the draft read from the page.
 import { PRODUCT } from "../shared/product";
-import { collectReport } from "./collect";
-import { createView } from "./view";
+import { answerCapture } from "./collect";
 
 type Handle = {
-  version: 1;
+  version: 2;
   instanceId: string;
-  toggle(): void;
-  isVisible(): boolean;
-  report(): ReturnType<typeof collectReport>;
-  /** True once the service worker acknowledged this page's report message. */
-  acked(): boolean;
+  /** False after an extension reload or update: the worker then retires this instance and injects again. */
   alive(): boolean;
   retire(): void;
 };
 
 const w = window as unknown as Record<string, unknown>;
 if (!w[PRODUCT.pageFlag]) {
-  const view = createView();
-  let visible = true;
-  let acked = false;
-  const report = () => collectReport(document, location);
-  const alive = () => {
-    try {
-      return typeof chrome.runtime?.id === "string";
-    } catch {
-      return false;
-    }
+  const listener = (msg: unknown, sender: chrome.runtime.MessageSender, sendResponse: (r: unknown) => void): boolean => {
+    const reply = answerCapture(msg, sender, chrome.runtime.id, document, location.href);
+    if (reply) sendResponse(reply);
+    return false;
   };
   const handle: Handle = {
-    version: 1,
+    version: 2,
     instanceId: crypto.randomUUID(),
-    toggle() {
-      visible = !visible;
-      if (visible) view.show(report());
-      else view.hide();
+    alive() {
+      try {
+        return typeof chrome.runtime?.id === "string";
+      } catch {
+        return false;
+      }
     },
-    isVisible: () => visible,
-    report,
-    acked: () => acked,
-    alive,
     retire() {
-      view.destroy();
+      try {
+        chrome.runtime.onMessage.removeListener(listener);
+      } catch {
+        /* the old context is gone */
+      }
     }
   };
+  chrome.runtime.onMessage.addListener(listener);
   w[PRODUCT.pageFlag] = handle;
-  const first = report();
-  view.show(first);
-  chrome.runtime.sendMessage({ type: "page:report", report: first }).then(
-    (reply: unknown) => (acked = typeof reply === "object" && reply !== null && (reply as { ok?: unknown }).ok === true),
-    () => (acked = false)
-  );
 }

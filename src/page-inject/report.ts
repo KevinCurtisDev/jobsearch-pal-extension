@@ -1,24 +1,18 @@
-// The data the injected page script reports back. Replace the fields with your product's own.
-// Shared by the page script (which builds it) and the service worker (which validates it).
-import { isIntInRange, isRecord, isShortString } from "../shared/validate";
+// What one toolbar click produced for a tab (SPEC §3 F2, F3), as kept in chrome.storage.session and
+// read by the side panel. `mode` "page" = read from the page by the page script; "url-only" = tab URL
+// and title only, because the site is an X3 site or the page can't be scripted (`reason` says which).
+import * as z from "zod/mini";
+import "../shared/zod-guard";
+import { JobDraftSchema } from "../core/model";
+import { REASONS } from "./reasons";
 
-export type PageReport = { title: string; host: string; lang: string; headings: number; links: number; images: number };
+export const TabDraftSchema = z.discriminatedUnion("mode", [
+  z.strictObject({ mode: z.literal("page"), draft: JobDraftSchema }),
+  z.strictObject({ mode: z.literal("url-only"), reason: z.enum(REASONS), draft: JobDraftSchema }),
+]);
+export type TabDraft = z.infer<typeof TabDraftSchema>;
 
-export function parseReport(v: unknown): PageReport | null {
-  if (!isRecord(v)) return null;
-  const { title, host, lang, headings, links, images } = v;
-  if (!isShortString(title, 300) || !isShortString(host, 255) || !isShortString(lang, 35)) return null;
-  for (const n of [headings, links, images]) if (!isIntInRange(n, 0, 1_000_000)) return null;
-  return { title, host, lang, headings: headings as number, links: links as number, images: images as number };
-}
-
-export function reportRows(r: PageReport): [string, string][] {
-  return [
-    ["Title", r.title || "(none)"],
-    ["Site", r.host || "(none)"],
-    ["Language", r.lang || "(not set)"],
-    ["Headings", String(r.headings)],
-    ["Links", String(r.links)],
-    ["Images", String(r.images)]
-  ];
+export function parseTabDraft(v: unknown): TabDraft | null {
+  const r = TabDraftSchema.safeParse(v);
+  return r.success ? r.data : null;
 }

@@ -45,7 +45,7 @@ lists the files it touches, so Claude reads only those. Helper: `node scripts/ta
 - **Done when:** the JSON-LD parser handles `@graph`, arrays, `JobPosting` subtypes, HTML in the description (reduced to text) and malformed JSON (returns null, no throw); the Greenhouse adapter is tested on a synthetic fixture with jsdom; every field carries source and confidence; fixtures are synthetic; `npm run verify` green
 - **Manual check:** none
 
-### T1.5 Capture wiring: CAPTURE_JOB and X3 sites `[ ]`
+### T1.5 Capture wiring: CAPTURE_JOB and X3 sites `[x]`
 - **Goal:** the toolbar click captures a `JobDraft` (or a URL-only draft) and stores it per tab for the side panel.
 - **Files:** `src/page/main.ts`, `src/page/collect.ts`, `src/page/view.ts` (deleted), `src/page-inject/activate.ts`, `src/page-inject/background.ts`, `src/page-inject/reasons.ts`, `src/page-inject/report.ts`, `src/page-inject/report-store.ts`, `src/shared/messages.ts`, `tests/unit/reasons.test.ts`, `tests/unit/page-inject.test.ts`, `tests/e2e/inject-action.spec.ts`, `tests/e2e/pages/jsonld.html`, `tests/e2e/pages/jsonld-malformed.html`, `tests/e2e/pages/greenhouse.html`
 - **Depends on:** T1.1, T1.4
