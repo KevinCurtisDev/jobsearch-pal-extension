@@ -116,3 +116,9 @@
 - **Decision:** merge `m1-vertical-slice` into `main` (no fast-forward, local only; pushing is a separate approval).
 - **Why:** M1 exit criteria met: `npm run verify` green (162 unit tests), `test:e2e` 36/36 (six slice acceptance tests, axe, offline), S13 recorded (ADR-013), bundle baseline in `docs/QA.md`, permissions still the six, owner's M1 manual checks passed in Chrome 158.
 - **Consequences:** M2 planning starts from `main`. Open: confirm the six statuses (RECONCILE C8) before M2 status editing; set bundle limits from the baseline; `npm audit` dev-only picomatch advisory (ADR-018).
+
+## ADR-020 No release before Phase 1 (E1) is complete
+- **Status:** accepted (2026-11-17, owner)
+- **Decision:** no Chrome Web Store release until all Phase 1 (E1) milestones are done. The `release-0.2.0` branch (version bump, CHANGELOG entry, store listing and privacy drafts, commit `d24e9b2`) stays local and unmerged; no tag.
+- **Why:** owner's call after `/prepare-release 0.2.0`; M1 alone isn't the product to ship.
+- **Consequences:** `main` stays at 0.1.0. At release time, rerun `/prepare-release` and reuse the drafts from `release-0.2.0`. Open before any release: own icons (placeholders today); short description promises reminders; `alarms`/`notifications` unused until reminders ship (Web Store may reject unused permissions); support email, privacy URL, screenshots.
