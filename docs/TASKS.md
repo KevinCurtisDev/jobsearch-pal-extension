@@ -13,7 +13,7 @@ lists the files it touches, so Claude reads only those. Helper: `node scripts/ta
 
 ## M0: Gates and platform
 
-### T0.1 src/core purity gate `[ ]`
+### T0.1 src/core purity gate `[x]`
 - **Goal:** `src/core` cannot use `chrome`, `window`, `document` or browser-only modules; lint and typecheck both enforce it.
 - **Files:** `eslint.config.js`, `tsconfig.core.json`, `package.json`, `src/core/index.ts`, `tests/unit/core-purity.test.ts`
 - **Depends on:** none
