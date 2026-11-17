@@ -1,7 +1,8 @@
 // Release readiness checks (run by /prepare-release; nothing is published or uploaded).
 //   node scripts/release-check.ts
 // Fails on: placeholder icons, unfilled store/privacy drafts, version mismatches, no CHANGELOG entry,
-// no store zip for this version, or uncommitted changes.
+// no store zip for this version, uncommitted changes, or `npm audit --omit=dev` findings (needs network;
+// `verify` stays offline, ADR-014).
 import { execSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
@@ -33,6 +34,15 @@ function gitClean(): boolean {
   }
 }
 check(gitClean(), "git working tree is clean (everything committed)");
+function auditClean(): boolean {
+  try {
+    execSync("npm audit --omit=dev", { stdio: "ignore" });
+    return true;
+  } catch {
+    return false;
+  }
+}
+check(auditClean(), "npm audit --omit=dev reports no vulnerabilities in runtime dependencies");
 
 for (const [ok, msg] of results) console.log(`${ok ? "✔" : "✖"} ${msg}`);
 const failed = results.filter(([ok]) => !ok).length;

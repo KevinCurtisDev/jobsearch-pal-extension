@@ -1,6 +1,8 @@
 {
   "entries": [
     { "url": "https://chrome.google.com/webstore", "reason": "Restricted-page prefix in src/page-inject/reasons.ts (Chrome blocks scripting on the old Web Store); compared as a string, never requested." },
-    { "url": "https://chromewebstore.google.com", "reason": "Restricted-page prefix in src/page-inject/reasons.ts (Chrome blocks scripting on the Web Store); compared as a string, never requested." }
+    { "url": "https://chromewebstore.google.com", "reason": "Restricted-page prefix in src/page-inject/reasons.ts (Chrome blocks scripting on the Web Store); compared as a string, never requested." },
+    { "url": "https://tinyurl.com/y2uuvskb", "reason": "Dexie 4.4.7 MissingAPI error message text (bundled from node_modules/dexie); shown in an error, never requested. Owner approved 2026-11-17 (T0.5)." },
+    { "url": "http://bit.ly/2kdckMn", "reason": "Dexie 4.4.7 PrematureCommit error message text (bundled from node_modules/dexie); shown in an error, never requested. Owner approved 2026-11-17 (T0.5)." }
   ]
 }

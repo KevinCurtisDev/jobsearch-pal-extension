@@ -45,7 +45,7 @@ lists the files it touches, so Claude reads only those. Helper: `node scripts/ta
 - **Done when:** budget and manifest list the six permissions, `side_panel.default_path` is set and the manifest has no `default_popup` (unit test); `referencedFiles` includes the side panel path (G4, unit test); the worker calls `chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false })`; the `action.onClicked` handler calls `chrome.sidePanel.open({ tabId })` first, with no `await` before it, then `activateTab` (errors from `open` caught and logged); CLAUDE.md hard rule 1, PRIVACY.md and STORE_LISTING.md justifications updated; panel built with `createElement`, styled only by CSS variables generated from `design/tokens.json` at build time, no hex values in `src/sidepanel` or `src/ui`; existing inject e2e still passes; new e2e opens `sidepanel.html` and sees the brand name; `npm run verify` green
 - **Manual check:** clicking the icon on a job page opens the side panel and the page capture still runs
 
-### T0.5 Dexie and Zod, pinned and licence-checked `[ ]`
+### T0.5 Dexie and Zod, pinned and licence-checked `[x]`
 - **Goal:** add both runtime dependencies at exact versions and prove they bundle through every gate.
 - **Files:** `package.json`, `package-lock.json`, `scripts/licence-check.ts`, `scripts/release-check.ts`, `src/storage/db.ts`, `src/shared/zod-guard.ts`, `src/background/index.ts`, `tests/unit/licence-check.test.ts`, `tests/unit/router.test.ts`, `tests/e2e/db.spec.ts`, `docs/REPO-MAP.md`
 - **Depends on:** T0.2, T0.4
