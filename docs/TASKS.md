@@ -61,7 +61,7 @@ lists the files it touches, so Claude reads only those. Helper: `node scripts/ta
 - **Done when:** `SAVE_JOB` is a versioned Zod union routed through `router.ts`, accepted only from extension pages, calls `saveJob` and returns `{ jobId }` only; pasted text works on URL-only drafts; captured text is rendered with `textContent` only; the list updates after a save; labelled inputs, 44 px targets and a keyboard-only flow are tested in e2e; `npm run verify` and `npm run test:e2e` green
 - **Manual check:** save a job and see it listed; Tab through the whole flow at 320 px wide
 
-### T1.7 JSON export and dry-run import `[ ]`
+### T1.7 JSON export and dry-run import `[x]`
 - **Goal:** a versioned, checksummed backup file, and an import that shows a dry-run before an idempotent merge.
 - **Files:** `src/core/backup.ts`, `src/storage/backup.ts`, `src/storage/jobs.ts`, `src/sidepanel/backup.ts`, `src/sidepanel/main.ts`, `tests/unit/backup.test.ts`, `tests/e2e/backup.spec.ts`
 - **Depends on:** T1.6

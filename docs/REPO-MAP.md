@@ -11,6 +11,7 @@
 | `src/core/ulid.ts`, `model.ts`, `projection.ts` | ULIDs (injected clock/random), Zod schemas (JobDraft, Job, Application, ApplicationEvent, Pay), `applyEvent` / `rebuildProjections` |
 | `src/core/draft.ts` | `manualDraft(url, title, deps)`: URL-only draft (F3, manual fallback) |
 | `src/core/jsonld.ts` | JSON-LD `JobPosting` → fields with provenance (`extractJobPosting`), `htmlToText` (no DOM) |
+| `src/core/backup.ts` | Backup file (F6, F7): `createBackup`, `readBackup` (size, JSON, format, version, checksum, Zod), `planImport` (merge by id), `canonicalJson`; SHA-256 injected |
 | `src/adapters/` | Capture (ADR-005): index.ts `captureDraft(document, url, deps)` (JSON-LD, then adapters, else manual draft), greenhouse.ts, dom-text.ts |
 | `tests/fixtures/pages/` | Synthetic HTML pages for adapter/JSON-LD unit tests (loaded with jsdom via `tests/unit/fixture-doc.ts`) |
 | `src/background/index.ts` | Service worker wiring; registers message handlers |
@@ -28,6 +29,8 @@
 | `src/ui/tokens.css` | Base UI styles for extension pages; only `var(--…)` from the generated `dist/tokens.css`, no hex values |
 | `design/tokens.json`, `scripts/tokens-css.ts` | Design tokens; the build turns them into CSS variables (`dist/tokens.css`) |
 | `src/page/` | Script injected into pages (isolated world, changes nothing): main.ts handle + CAPTURE_JOB listener, collect.ts `answerCapture` (sender check, Zod, `captureDraft`) |
+| `src/storage/jobs.ts`, `src/storage/backup.ts` | jobs.ts: the only writer of jobs/applications/events (`saveJob`, `importBackup`), `listJobs`; backup.ts: `readBackupData` (export), `previewImport` (dry-run) |
+| `src/sidepanel/backup.ts` | Back up and restore section: export download, file import with dry-run and confirm |
 | `src/storage/store.ts` | Typed storage keys: defineKey, read, write, remove, watch (storage module) |
 | `build.mjs`, `build.json` | esbuild bundling; entry points and static files |
 | `scripts/check-dist.ts`, `scripts/dist-rules.ts` | Post-build gate: permissions, CSP, locales, files, no remote code, G1 network (`scripts/network-allow.json`), G6 brand scan |

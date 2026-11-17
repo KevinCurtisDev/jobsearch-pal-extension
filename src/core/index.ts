@@ -10,3 +10,4 @@ export * from "./model";
 export * from "./projection";
 export * from "./jsonld";
 export * from "./draft";
+export * from "./backup";

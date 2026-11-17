@@ -1,10 +1,11 @@
-// The one write path for saved jobs (SPEC §3 F4, F5; ADR-017). SAVE_JOB in the worker and, later, import
-// call `saveJob`; nothing else writes `jobs`, `applications` or `applicationEvents`.
+// The one write path for saved jobs (SPEC §3 F4, F5, F7; ADR-017). SAVE_JOB in the worker calls `saveJob`,
+// a confirmed import calls `importBackup`; nothing else writes `jobs`, `applications` or `applicationEvents`.
 // Every row read back is validated with the T1.2 Zod schemas; rows that fail are skipped and counted.
 import * as z from "zod/mini";
 import "../shared/zod-guard"; // jitless Zod
 import { ApplicationEventSchema, ApplicationSchema, InstantSchema, JobDraftSchema, JobSchema, UlidSchema, type Application, type ApplicationEvent, type Job } from "../core/model";
-import { applyEvent } from "../core/projection";
+import { planImport, type ExistingIds, type ImportCounts } from "../core/backup";
+import { applyEvent, rebuildProjections } from "../core/projection";
 import type { Db } from "./db";
 
 /** Id and clock sources. In the extension: a `createUlid({ random: crypto.getRandomValues })` generator. */
@@ -81,4 +82,47 @@ export async function listJobs(db: Db): Promise<JobList> {
   const byJob = new Map(apps.rows.map((a) => [a.jobId, a]));
   const items = jobs.rows.sort(newestFirst).map((job) => ({ job, application: byJob.get(job.id) ?? null }));
   return { items, skipped: jobs.skipped + apps.skipped };
+}
+
+/** Ids already stored, from raw rows: a row counts even if it fails validation, so imports never collide. */
+export async function existingIds(db: Db): Promise<ExistingIds> {
+  const [jobs, events] = await Promise.all([db.jobs.toArray(), db.applicationEvents.toArray()]);
+  const str = (v: unknown): v is string => typeof v === "string";
+  const out = { jobIds: new Set<string>(), draftIds: new Map<string, string>(), eventIds: new Set<string>(), appJobs: new Map<string, string>() };
+  for (const j of jobs as unknown[]) {
+    const r = (j ?? {}) as Record<string, unknown>;
+    if (str(r.id)) out.jobIds.add(r.id);
+    if (str(r.id) && str(r.draftId)) out.draftIds.set(r.draftId, r.id);
+  }
+  for (const e of events as unknown[]) {
+    const r = (e ?? {}) as Record<string, unknown>;
+    if (str(r.id)) out.eventIds.add(r.id);
+    if (str(r.applicationId) && str(r.jobId) && !out.appJobs.has(r.applicationId)) out.appJobs.set(r.applicationId, r.jobId);
+  }
+  return out;
+}
+
+const ImportInputSchema = z.strictObject({ jobs: z.array(z.unknown()), events: z.array(z.unknown()) });
+
+/**
+ * Confirmed import (F7; ADR-017): the backup's records are re-checked with the same Zod schemas as SAVE_JOB,
+ * merged by id and written in one read-write transaction with the application rows rebuilt from the events
+ * (X11). Importing the same file again adds nothing. `readInvalid`: records `readBackup` already refused.
+ */
+export async function importBackup(db: Db, data: unknown, readInvalid = 0): Promise<ImportCounts> {
+  const input = ImportInputSchema.parse(data);
+  const jobs = parseRows(JobSchema, input.jobs);
+  const events = parseRows(ApplicationEventSchema, input.events);
+  const invalid = readInvalid + jobs.skipped + events.skipped;
+  return db.transaction("rw", db.jobs, db.applications, db.applicationEvents, async () => {
+    const plan = planImport({ jobs: jobs.rows, events: events.rows }, invalid, await existingIds(db));
+    if (plan.jobs.length > 0) await db.jobs.bulkAdd(plan.jobs);
+    if (plan.events.length > 0) await db.applicationEvents.bulkAdd(plan.events);
+    const appIds = [...new Set(plan.events.map((e) => e.applicationId))];
+    if (appIds.length > 0) {
+      const log = parseRows(ApplicationEventSchema, await db.applicationEvents.where("applicationId").anyOf(appIds).toArray());
+      await db.applications.bulkPut([...rebuildProjections(log.rows).values()]);
+    }
+    return plan.counts;
+  });
 }
