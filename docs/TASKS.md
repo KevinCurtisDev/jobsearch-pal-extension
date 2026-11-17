@@ -53,7 +53,7 @@ lists the files it touches, so Claude reads only those. Helper: `node scripts/ta
 - **Done when:** X3 hosts never get injection, with unit tests: `linkedin.com`, `www.linkedin.com`, `ie.indeed.com`, `indeed.com`, `glassdoor.com`, `glassdoor.co.uk` match; `notlinkedin.com`, `linkedin.com.example.org`, `indeed.com.evil.test` do not; `CAPTURE_JOB` replies are Zod-validated and top-frame only; drafts live in `chrome.storage.session` keyed by tab with its default access level (no `setAccessLevel` call; a test asserts content scripts can't read it), never in worker globals; the page script never changes the page; e2e covers the three fixture pages plus a URL-only draft; `npm run verify` and `npm run test:e2e` green
 - **Manual check:** click the icon on a real Greenhouse posting (full draft) and on linkedin.com (URL-only draft, nothing injected)
 
-### T1.6 Side panel: review, save, list `[ ]`
+### T1.6 Side panel: review, save, list `[x]`
 - **Goal:** the panel shows the current tab's draft as a form, saves it through `SAVE_JOB`, and lists saved jobs.
 - **Files:** `src/sidepanel/main.ts`, `src/sidepanel/review.ts`, `src/sidepanel/list.ts`, `src/ui/tokens.css`, `src/background/save.ts`, `src/background/modules.ts`, `src/shared/messages.ts`, `tests/unit/router.test.ts`, `tests/e2e/sidepanel.spec.ts`
 - **Depends on:** T1.3, T1.5

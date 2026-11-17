@@ -59,3 +59,13 @@ export function parseCaptureReply(reply: unknown, id: string): CaptureJobReply["
   if (r.data.draft !== null && r.data.draft.id !== id) return undefined;
   return r.data.draft;
 }
+
+// SAVE_JOB (SPEC §3 F4, ADR-017): the side panel asks the worker to save a reviewed draft. Versioned by
+// `v` (a discriminated union, so a v2 can be added beside v1). Accepted only from extension pages; the
+// worker calls `saveJob` and replies with `{ jobId }` only.
+
+export const SAVE_JOB = "SAVE_JOB";
+export const SaveJobSchema = z.discriminatedUnion("v", [z.strictObject({ type: z.literal(SAVE_JOB), v: z.literal(1), draft: JobDraftSchema })]);
+export type SaveJob = z.infer<typeof SaveJobSchema>;
+export const SaveJobReplySchema = z.strictObject({ jobId: UlidSchema });
+export type SaveJobReply = z.infer<typeof SaveJobReplySchema>;

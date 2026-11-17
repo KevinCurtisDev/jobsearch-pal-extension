@@ -58,7 +58,7 @@ test("worker start makes no external requests (net log from launch)", async () =
 test("opening sidepanel.html makes no external requests", async ({ context, extensionId, net }) => {
   const page = await context.newPage();
   await page.goto(`chrome-extension://${extensionId}/sidepanel.html`);
-  await expect(page.getByRole("heading", { level: 2 })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2, name: "Saved jobs" })).toBeVisible();
   await page.waitForLoadState("networkidle");
   expect(net.external).toEqual([]);
 });

@@ -15,6 +15,7 @@
 | `tests/fixtures/pages/` | Synthetic HTML pages for adapter/JSON-LD unit tests (loaded with jsdom via `tests/unit/fixture-doc.ts`) |
 | `src/background/index.ts` | Service worker wiring; registers message handlers |
 | `src/background/router.ts` | Message router: sender check, validation, replies |
+| `src/background/save.ts` | SAVE_JOB handler: Zod v1 union, extension pages only, calls `saveJob`, replies `{ jobId }` |
 | `src/background/modules.ts` | Generated list of module background entry points |
 | `src/shared/messages.ts` | Message types, `send()`, sender checks |
 | `src/shared/validate.ts` | Validators for untrusted data |
@@ -22,7 +23,8 @@
 | `src/storage/db.ts` | Dexie database `jobsearch-pal` (v1: `meta` store); rows validated with Zod on read |
 | `tests/e2e/` | Playwright e2e: fixtures.ts (extension loading, action click, real popup driver, `net` offline guard), offline.spec.ts (zero external requests), pages/ (local test pages), *.spec.ts |
 | `src/page-inject/` | Capture pipeline in the service worker: activate.ts (X3/URL checks, probe, inject, CAPTURE_JOB to frame 0), reasons.ts (`isX3Host`, reasons), report.ts (`TabDraft` schema), report-store.ts (`draft.<tabId>` in storage.session), background.ts (toolbar click, tab close) |
-| `src/sidepanel/main.ts`, `public/sidepanel.html` | Side panel (ADR-012): opened by the toolbar click; built with createElement |
+| `src/sidepanel/main.ts`, `public/sidepanel.html` | Side panel (ADR-012): opened by the toolbar click; follows the active tab's `draft.<tabId>`, reads Dexie directly for the list |
+| `src/sidepanel/review.ts`, `list.ts`, `dom.ts` | Review form (`draftFromForm`: edits become `manual` provenance), saved jobs list, `el()` (createElement + textContent) |
 | `src/ui/tokens.css` | Base UI styles for extension pages; only `var(--…)` from the generated `dist/tokens.css`, no hex values |
 | `design/tokens.json`, `scripts/tokens-css.ts` | Design tokens; the build turns them into CSS variables (`dist/tokens.css`) |
 | `src/page/` | Script injected into pages (isolated world, changes nothing): main.ts handle + CAPTURE_JOB listener, collect.ts `answerCapture` (sender check, Zod, `captureDraft`) |
