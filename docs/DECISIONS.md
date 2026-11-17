@@ -110,3 +110,9 @@
 - **Decision:** accept GHSA-fc5q-39xc-vjpf (picomatch 4.0.7 ReDoS, 11 high, via vitest and typescript-eslint) because it is dev-only: `npm audit --omit=dev` reports 0 vulnerabilities (checked 2026-11-17).
 - **Why:** no fixed picomatch is published; it only runs on our own globs at build/test time, never in the shipped extension.
 - **Consequences:** `release-check` keeps `npm audit --omit=dev` as the gate; recheck the full `npm audit` at each release and upgrade once a fix ships.
+
+## ADR-019 Merge M1 into main
+- **Status:** accepted (2026-11-17, owner)
+- **Decision:** merge `m1-vertical-slice` into `main` (no fast-forward, local only; pushing is a separate approval).
+- **Why:** M1 exit criteria met: `npm run verify` green (162 unit tests), `test:e2e` 36/36 (six slice acceptance tests, axe, offline), S13 recorded (ADR-013), bundle baseline in `docs/QA.md`, permissions still the six, owner's M1 manual checks passed in Chrome 158.
+- **Consequences:** M2 planning starts from `main`. Open: confirm the six statuses (RECONCILE C8) before M2 status editing; set bundle limits from the baseline; `npm audit` dev-only picomatch advisory (ADR-018).
