@@ -36,6 +36,23 @@ function companyFromMeta(doc: Document): string | undefined {
   return m?.[1]?.trim() || undefined;
 }
 
+/**
+ * Greenhouse joins places with ";" and the current layout appends "| <office>", which often repeats one of
+ * them ("NYC, NY; SF, CA | NYC, NY"). Splits on both, drops repeats (ignoring case) and joins with "; ".
+ */
+export function normalizeLocation(s: string): string {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const part of s.split(/[;|]/)) {
+    const place = part.trim().replace(/\s+/g, " ");
+    const key = place.toLowerCase();
+    if (place === "" || seen.has(key)) continue;
+    seen.add(key);
+    out.push(place);
+  }
+  return out.join("; ");
+}
+
 const within = (s: string | undefined, max: number): string | undefined =>
   s !== undefined && s.length > 0 && s.length <= max ? s : undefined;
 
@@ -49,7 +66,8 @@ export function readGreenhouse(doc: Document, url: URL, at: string): CapturedFie
   const companyText = lineOf(doc, COMPANY);
   const company = within(companyText ? stripAt(companyText) : companyFromMeta(doc), LIMITS.company);
   if (company) out.company = provenance(company, "adapter", c.company, at);
-  const location = within(lineOf(doc, LOCATION), LIMITS.location);
+  const locationText = lineOf(doc, LOCATION);
+  const location = within(locationText ? normalizeLocation(locationText) : undefined, LIMITS.location);
   if (location) out.location = provenance(location, "adapter", c.location, at);
   for (const sel of DESCRIPTION) {
     const el = doc.querySelector(sel);

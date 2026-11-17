@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from "vitest";
 import { loadFixture } from "./fixture-doc";
-import { isGreenhouse, readGreenhouse } from "../../src/adapters/greenhouse";
+import { isGreenhouse, normalizeLocation, readGreenhouse } from "../../src/adapters/greenhouse";
 import { captureDraft } from "../../src/adapters/index";
 import { JobDraftSchema } from "../../src/core/model";
 
@@ -46,6 +46,31 @@ describe("isGreenhouse", () => {
       "https://evilboards.greenhouse.io.example/x",
       "https://example.com/careers?gh_jid=1",
     ]) expect(isGreenhouse(new URL(u))).toBe(false);
+  });
+});
+
+describe("normalizeLocation", () => {
+  it("drops repeated places and joins them with '; '", () => {
+    // job-boards.greenhouse.io shows "<all locations> | <office>", so the office often repeats.
+    expect(normalizeLocation("New York City, NY; San Francisco, CA | New York City, NY")).toBe("New York City, NY; San Francisco, CA");
+    expect(normalizeLocation("San Francisco, CA | New York City, NY")).toBe("San Francisco, CA; New York City, NY");
+    expect(normalizeLocation(" Remote | remote ")).toBe("Remote");
+    expect(normalizeLocation("Dublin, IE")).toBe("Dublin, IE");
+    expect(normalizeLocation(" ; | ")).toBe("");
+  });
+
+  it("is applied to the current layout's location line", () => {
+    const doc = document.implementation.createHTMLDocument("Job Application for Account Lead at Example Co");
+    const title = doc.createElement("div");
+    title.className = "job__title";
+    const h1 = doc.createElement("h1");
+    h1.textContent = "Account Lead";
+    const loc = doc.createElement("div");
+    loc.className = "job__location";
+    loc.append(doc.createElementNS("http://www.w3.org/2000/svg", "svg"), doc.createTextNode("Exampleton, EX; Sampleville, SV | Exampleton, EX"));
+    title.append(h1, loc);
+    doc.body.append(title);
+    expect(readGreenhouse(doc, GH, AT)?.location?.value).toBe("Exampleton, EX; Sampleville, SV");
   });
 });
 

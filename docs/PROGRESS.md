@@ -6,8 +6,7 @@
 - **Last done:** 2026-11-17 T1.8: `@axe-core/playwright` 4.14.0 (exact, dev, ADR-016); a11y.spec (empty, review, errors, list, import dry-run + canary); slice.spec (acceptance 1 and 4 end to end, header maps all six); offline.spec covers capture → save → export → import; bundle sizes in `npm run measure`, M1 baseline in `docs/QA.md`.
 - **Next step:** M1 is complete. Merge `m1-vertical-slice` to main, then `/prepare-release` (both need owner approval).
 - **Owner QA:** M1 checklist passed in Chrome 158 (2026-11-17); S13 `ok: false` both settings (ADR-013). Waiting: merge/release approval; confirm the six statuses (RECONCILE C8) before M2; set bundle limits from the baseline.
-- **Follow-up:** Greenhouse adapter repeats a city in `location` on job-boards pages ("NYC, NY; SF, CA | NYC, NY"); small fix with a fixture test.
-- **Gates (verify-extension 2026-11-17):** `npm run verify` green (160 unit tests); `test:e2e` 36/36; `npm audit --omit=dev` 0; full audit 11 high, all GHSA-fc5q-39xc-vjpf (picomatch, dev-only, ADR-018). Permissions still the six.
+- **Gates (2026-11-17, after the location fix):** `npm run verify` green (162 unit tests); `test:e2e` 36/36; `npm audit --omit=dev` 0; full audit 11 high, all GHSA-fc5q-39xc-vjpf (picomatch, dev-only, ADR-018). Permissions still the six.
 - **Bundle baseline (prod):** 342,072 B / 112,851 B gzip total (sidepanel.js 149.7 kB, background.js 143.3 kB, page.js 38.9 kB).
 - **Import rules:** a file job whose draftId is stored under another id is invalid (with its events); events for unknown jobs or a mismatched application are invalid. Backup omits `applications` (projections).
 - **Note:** G1 flags `http://` in any shipped string, including UI text; word messages without scheme literals.
@@ -30,3 +29,4 @@
 - 2026-11-17 · T1.6 · SAVE_JOB v1 (save.ts, extension pages only, { jobId }); panel review form (draftFromForm, manual provenance for edits/paste), list from Dexie; e2e keyboard flow, 44 px at 320 px, hostile text, URL-only paste, errors
 - 2026-11-17 · T1.7 · core/backup.ts (canonical JSON + injected SHA-256, readBackup errors, planImport merge by id); storage importBackup one transaction; panel export/dry-run/confirm; e2e fresh-profile identical log, idempotent re-import, bad files, cancel
 - 2026-11-17 · T1.8 · @axe-core/playwright 4.14.0 exact (ADR-016); a11y.spec with canary; slice.spec acceptance 1 and 4; offline capture→save→export→import; measure.ts bundle sizes, M1 baseline + M1 checklist in QA.md
+- 2026-11-17 · fix · Greenhouse location: split on ; and |, drop repeats ("NYC; SF | NYC" → "NYC; SF"), seen on live job-boards pages
