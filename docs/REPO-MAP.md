@@ -15,7 +15,7 @@
 | `src/shared/validate.ts` | Validators for untrusted data |
 | `src/shared/zod-guard.ts` | Sets Zod jitless (import it wherever `zod/mini` is used); `guard(schema)`, `PingSchema` (ADR-004) |
 | `src/storage/db.ts` | Dexie database `jobsearch-pal` (v1: `meta` store); rows validated with Zod on read |
-| `tests/e2e/` | Playwright e2e: fixtures.ts (extension loading, action click, real popup driver), pages/ (local test pages), *.spec.ts |
+| `tests/e2e/` | Playwright e2e: fixtures.ts (extension loading, action click, real popup driver, `net` offline guard), offline.spec.ts (zero external requests), pages/ (local test pages), *.spec.ts |
 | `src/page-inject/` | Injection pipeline in the service worker: activate.ts (probe, inject, classify), reasons.ts, background.ts (handlers) |
 | `src/sidepanel/main.ts`, `public/sidepanel.html` | Side panel (ADR-012): opened by the toolbar click; built with createElement |
 | `src/ui/tokens.css` | Base UI styles for extension pages; only `var(--…)` from the generated `dist/tokens.css`, no hex values |

@@ -53,7 +53,7 @@ lists the files it touches, so Claude reads only those. Helper: `node scripts/ta
 - **Done when:** `package.json` lists `"dexie": "4.4.7"` and `"zod": "4.6.7"` exactly (no `^` or `~`; unit test asserts every dependency version is exact); `scripts/licence-check.ts` (no new dependency) fails on any production dependency outside MIT, Apache-2.0, ISC, BSD-2-Clause, BSD-3-Clause, 0BSD and runs in `verify`; `npm audit --omit=dev` runs in `release-check`; `src/storage/db.ts` opens `jobsearch-pal` v1 with one `meta` store; `ping` is validated with Zod via `zod-guard.ts`; the bundle passes `bannedCode` and G1 without loosening either (if Zod's eval probe trips, use `jitless` or `zod/mini`; any library URL string is added as an exact allowlist entry with a reason, after the owner sees it); e2e round-trips one `meta` row in the worker; `npm run verify` green
 - **Manual check:** none
 
-### T0.6 Offline e2e smoke `[ ]`
+### T0.6 Offline e2e smoke `[x]`
 - **Goal:** prove the extension makes no network requests while its main flows run.
 - **Files:** `tests/e2e/offline.spec.ts`, `tests/e2e/fixtures.ts`, `package.json`
 - **Depends on:** T0.5

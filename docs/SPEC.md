@@ -27,7 +27,7 @@ Save job posts from the page you're on, track each application's status, set rem
 - **G4:** `check-dist` checks the side panel file exists.
 - **G6 brand scan:** "jobpilot", "hearback", "offerlight" (case-insensitive) fail the build if found in `dist/` or shipped source (`src/`, `public/`, `_locales/`, `build.json`, `extension.config.json`). `docs/` is not scanned.
 - **Licences:** runtime dependencies limited to MIT, Apache-2.0, ISC, BSD-2-Clause, BSD-3-Clause, 0BSD (`scripts/licence-check.ts` in `verify`). `npm audit --omit=dev` runs in `release-check`.
-- **Offline e2e:** the main flows make zero external requests (`tests/e2e/offline.spec.ts`).
+- **Offline e2e:** the main flows make zero external requests (`tests/e2e/offline.spec.ts`). The `net` fixture aborts and records every request not to the local test origin or `chrome-extension://` (pages and service worker). Worker start happens before routes can exist, so it is checked with Chromium's net log from launch. Canary tests prove both detectors see requests.
 
 ## 7. Non-goals (M0)
 - No data model or capture changes; no Save button in the side panel (M1, after spike S13).

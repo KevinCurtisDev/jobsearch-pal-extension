@@ -79,6 +79,7 @@
 - **Decision:** Phase 1 runs spikes S1, S2, S5, S6, S10, S12 and S13. S13: does a Save job button inside the side panel get an activeTab grant for the current tab, with and without `openPanelOnActionClick`? Fallback: capture from the toolbar icon click.
 - **Why:** `docs/BUILD-PROMPT.md` §4; M1's capture flow depends on S13.
 - **Consequences:** results are recorded as "tested (spike id)". S12 is expected to pass via the factory e2e module (confirmed in T0.6).
+- **Results:** S12 tested (S12, 2026-11-17, T0.6): Playwright 1.65 drives the extension in a persistent Chromium context (worker, side panel page, toolbar click via CDP); `context.route` intercepts both page and service-worker requests (canary tests in `tests/e2e/offline.spec.ts`).
 
 ## ADR-014 M0 gate policy and dependency versions
 - **Status:** accepted (2026-11-17, owner)
