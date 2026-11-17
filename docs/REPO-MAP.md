@@ -9,6 +9,9 @@
 | `_locales/en/messages.json` | Localized extension name, short name, description (ADR-011) |
 | `src/core/brand.ts` | `BRAND_NAME`, `STORE_TITLE`, `PLATFORM_DOMAIN`: the only brand strings in code (ADR-011) |
 | `src/core/ulid.ts`, `model.ts`, `projection.ts` | ULIDs (injected clock/random), Zod schemas (JobDraft, Job, Application, ApplicationEvent, Pay), `applyEvent` / `rebuildProjections` |
+| `src/core/jsonld.ts` | JSON-LD `JobPosting` → fields with provenance (`extractJobPosting`), `htmlToText` (no DOM) |
+| `src/adapters/` | Capture (ADR-005): index.ts `captureDraft(document, url, deps)` (JSON-LD, then adapters, else manual draft), greenhouse.ts, dom-text.ts |
+| `tests/fixtures/pages/` | Synthetic HTML pages for adapter/JSON-LD unit tests (loaded with jsdom via `tests/unit/fixture-doc.ts`) |
 | `src/background/index.ts` | Service worker wiring; registers message handlers |
 | `src/background/router.ts` | Message router: sender check, validation, replies |
 | `src/background/modules.ts` | Generated list of module background entry points |

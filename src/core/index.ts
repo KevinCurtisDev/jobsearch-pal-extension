@@ -8,3 +8,4 @@ export const CORE_VERSION = 1;
 export * from "./ulid";
 export * from "./model";
 export * from "./projection";
+export * from "./jsonld";

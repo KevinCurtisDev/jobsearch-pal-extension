@@ -37,7 +37,7 @@ lists the files it touches, so Claude reads only those. Helper: `node scripts/ta
 - **Done when:** the v1 to v2 upgrade keeps `meta` rows; `saveJob` validates with the T1.2 Zod schemas and writes job, application and `created` event in one transaction; the same draft id twice stores one job; rows that fail Zod on read are skipped and counted; an e2e test kills the worker mid-save and finds the save either complete or absent, never partial; `listJobs` returns newest first; `npm run verify` and `npm run test:e2e` green
 - **Manual check:** none
 
-### T1.4 Extractors: JSON-LD and Greenhouse `[ ]`
+### T1.4 Extractors: JSON-LD and Greenhouse `[x]`
 - **Goal:** turn page data into a `JobDraft` with provenance.
 - **Files:** `src/core/jsonld.ts`, `src/adapters/greenhouse.ts`, `src/adapters/index.ts`, `tests/unit/jsonld.test.ts`, `tests/unit/greenhouse.test.ts`, `tests/fixtures/pages/jsonld-valid.html`, `tests/fixtures/pages/jsonld-malformed.html`, `tests/fixtures/pages/greenhouse.html`
 - **Depends on:** T1.2
