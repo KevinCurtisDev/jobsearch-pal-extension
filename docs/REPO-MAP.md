@@ -8,6 +8,7 @@
 | `src/manifest.json` | Manifest V3 (version must match `package.json`); names are `__MSG_*__` placeholders |
 | `_locales/en/messages.json` | Localized extension name, short name, description (ADR-011) |
 | `src/core/brand.ts` | `BRAND_NAME`, `STORE_TITLE`, `PLATFORM_DOMAIN`: the only brand strings in code (ADR-011) |
+| `src/core/ulid.ts`, `model.ts`, `projection.ts` | ULIDs (injected clock/random), Zod schemas (JobDraft, Job, Application, ApplicationEvent, Pay), `applyEvent` / `rebuildProjections` |
 | `src/background/index.ts` | Service worker wiring; registers message handlers |
 | `src/background/router.ts` | Message router: sender check, validation, replies |
 | `src/background/modules.ts` | Generated list of module background entry points |

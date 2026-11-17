@@ -21,7 +21,7 @@ lists the files it touches, so Claude reads only those. Helper: `node scripts/ta
 - **Done when:** the spike runs both settings and calls `scripting.executeScript` after a trusted click in the panel; the result is recorded as "tested (S13)" in ADR-013 and 17 §12, with the chosen flow (toolbar-click capture stays the default; a panel "Capture again" button only if S13 passes); no production code changes; `npm run verify` green
 - **Manual check:** owner repeats the spike in desktop Chrome (steps in `docs/QA.md`)
 
-### T1.2 Core data model, ULID and projection `[ ]`
+### T1.2 Core data model, ULID and projection `[x]`
 - **Goal:** the pure M1 model in `src/core`: ULIDs, `JobDraft`, Job, Application, ApplicationEvent schemas, field provenance, and status projected from events.
 - **Files:** `src/core/ulid.ts`, `src/core/model.ts`, `src/core/projection.ts`, `src/core/index.ts`, `tests/unit/ulid.test.ts`, `tests/unit/model.test.ts`, `tests/unit/projection.test.ts`
 - **Depends on:** none
