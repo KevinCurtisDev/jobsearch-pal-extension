@@ -231,6 +231,7 @@ The spec's phases total roughly 12 to 22 weeks for a solo developer. Our E0 to E
 ## 12. Documentation and policy checks still to do (nothing here was checked live unless a link is given above)
 
 1. Chrome: `permissions` and `optional_permissions` page for `unlimitedStorage`; `scripting.registerContentScripts` persistence; `alarms` reference; `storage` quotas; offscreen documents; default extension CSP and WASM; `sidePanel` behaviour on other Chromium browsers.
+   - S13 side panel activeTab: tested (S13, 2026-11-17): in Chromium 158 a trusted click inside the side panel does not grant activeTab, with `openPanelOnActionClick` false or true; capture stays on the toolbar icon click (`tests/e2e/spike-s13.spec.ts`, ADR-013).
 2. Chrome Web Store: single purpose, user data policy and Limited Use, permission justification, review times, account verification and trader status in the EU.
 3. Terms to read in full: LinkedIn, Indeed, Glassdoor, IrishJobs.ie, Jobs.ie, Reed, publicjobs.ie, and each Tier A ATS vendor.
 4. Data: UK Register of Licensed Sponsors and Irish critical skills list licence and update cadence.

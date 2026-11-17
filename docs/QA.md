@@ -22,6 +22,15 @@ rebuild, click the reload icon on the extension card, then reload the test tab.
 - [x] Installing shows the warnings expected for the six permissions (notifications; reading on the active tab only) and nothing about "all sites". *(T0.4)*
 - [x] Service worker console (Inspect views) shows no errors after install and after one capture; the Network tab shows no external requests. *(T0.5, T0.6)*
 
+## M1 Vertical slice
+- [ ] **S13 spike (T1.1), repeat in desktop Chrome.** Expected: the panel click is refused, as in Chromium 158.
+  1. Open any https page (e.g. `https://example.com`), click the toolbar icon: the side panel opens.
+  2. In the same tab go to a different site (e.g. `https://example.org`). This ends the click's access.
+  3. Right-click inside the side panel → Inspect → Console. Paste the `INSTALL_PROBE` snippet from `tests/e2e/spike-s13.spec.ts` (the code between the backticks); Chrome may ask you to type `allow pasting` first. An "S13 probe" button appears in the panel.
+  4. Click the button with the mouse, then run `window.__s13` in the console. Expected: `ok: false` and "Cannot access contents of the page".
+  5. With `openPanelOnActionClick` on: `chrome://extensions` → JobSearch Pal → "service worker" → Console: `chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true })`. Repeat steps 1–4 (expected the same). Then reload the extension on `chrome://extensions`; it sets the setting back to off.
+  6. Note your Chrome version and the two `window.__s13` results in the table below.
+
 ## Results
 | Date | Chrome version | Checks | Notes |
 |---|---|---|---|

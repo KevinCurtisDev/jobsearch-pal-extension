@@ -13,7 +13,7 @@ lists the files it touches, so Claude reads only those. Helper: `node scripts/ta
 
 ## M1: Vertical slice
 
-### T1.1 Spike S13: side panel activeTab grant `[ ]`
+### T1.1 Spike S13: side panel activeTab grant `[x]`
 - **Goal:** find out whether a button in the side panel gets an activeTab grant for the current tab, with and without `openPanelOnActionClick`, and record the result.
 - **Files:** `tests/e2e/spike-s13.spec.ts`, `docs/DECISIONS.md`, `docs/source/17-jobpilot-spec-review.md`, `docs/QA.md`
 - **Depends on:** none
