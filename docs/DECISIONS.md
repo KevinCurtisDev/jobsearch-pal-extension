@@ -92,3 +92,21 @@
 - **Decision:** merge `m0-gates-platform` into `main` (no fast-forward, local only; pushing is a separate approval).
 - **Why:** M0 exit criteria met: `npm run verify` green (73 unit tests), `test:e2e` 16/16, owner's manual Chrome checks in `docs/QA.md` passed.
 - **Consequences:** M1 planning starts from `main`. Open: `npm audit` 11 high (dev-only, picomatch 4.0.7 ReDoS, no upstream fix yet); revisit when a fixed picomatch is published.
+
+## ADR-016 axe for accessibility tests
+- **Status:** accepted (2026-11-17, owner)
+- **Decision:** add `@axe-core/playwright` as an exact-pinned dev dependency (no `^` or `~`) for the accessibility gate (BUILD-PROMPT §6.6).
+- **Why:** M1 slice acceptance (5) needs axe on the side panel; ADR-014 required a separate approval.
+- **Consequences:** dev-only and not shipped, so the runtime licence list (ADR-014) is unchanged (axe-core is MPL-2.0). Added in T1.8.
+
+## ADR-017 M1 capture flow and data model
+- **Status:** accepted (2026-11-17, owner, with conditions)
+- **Decision:** the toolbar click captures; review and save happen in the side panel; the in-page overlay is removed. Per-tab drafts live in `chrome.storage.session` at its default access level (never exposed to content scripts). Dexie v2 adds `jobs`, `applications`, `applicationEvents` (subset of 17 §3); events are the source of truth. Capture writes go through `SAVE_JOB` in the worker; the panel reads Dexie directly for list and export. Import writes go through the same storage module, in one transaction, with the same Zod checks as `SAVE_JOB`. No generic database message.
+- **Why:** works whatever S13 finds; keeps one validated write path.
+- **Consequences:** X3 host tests cover subdomains and look-alikes (`www.linkedin.com`, `ie.indeed.com`, `glassdoor.co.uk` match; `notlinkedin.com`, `linkedin.com.example.org` don't). No new permission, including `downloads` (export uses a blob URL). ULIDs written in `src/core`, no new dependency.
+
+## ADR-018 Dev-only picomatch advisory accepted
+- **Status:** accepted (2026-11-17, owner)
+- **Decision:** accept GHSA-fc5q-39xc-vjpf (picomatch 4.0.7 ReDoS, 11 high, via vitest and typescript-eslint) because it is dev-only: `npm audit --omit=dev` reports 0 vulnerabilities (checked 2026-11-17).
+- **Why:** no fixed picomatch is published; it only runs on our own globs at build/test time, never in the shipped extension.
+- **Consequences:** `release-check` keeps `npm audit --omit=dev` as the gate; recheck the full `npm audit` at each release and upgrade once a fix ships.

@@ -2,12 +2,13 @@
 
 ## Current state
 *Rewritten at the end of every session (15 lines or fewer). A new session starts here.*
-- **Milestone:** M0 Gates and platform: done and merged into `main` and pushed to origin (ADR-015, owner approved push 2026-11-17). M1 not planned yet.
-- **Last done:** 2026-11-17 T0.6: offline e2e. `net` fixture aborts/records non-local requests (pages + worker); worker start checked via Chromium net log from launch; canaries prove both detectors. S12 tested (ADR-013).
-- **Next step:** `/plan-feature` for M1 (vertical slice; spike S13 first) on a new branch from `main`.
-- **Waiting for the owner:** decide on `npm audit` (11 high, dev-only, all from picomatch 4.0.7 ReDoS GHSA-fc5q-39xc-vjpf via vitest/typescript-eslint; no fixed picomatch published; prod deps 0).
-- **Manual checks pending in Chrome:** none. M0 checks passed (owner, 2026-11-17).
+- **Milestone:** M1 Checkpoint A, vertical slice: planned on branch `m1-vertical-slice` (T1.1–T1.8, owner approved 2026-11-17). M0 archived in `docs/archive/M0-tasks.md`.
+- **Last done:** 2026-11-17 plan M1: SPEC §2, F2–F8, §7; ADR-016 (axe dev dep, exact pin), ADR-017 (capture flow and data model, with conditions), ADR-018 (picomatch advisory accepted as dev-only; prod audit 0).
+- **Next step:** `/implement-task T1.1` (spike S13). T1.2 has no dependencies and can follow.
+- **Waiting for the owner:** nothing.
+- **Manual checks pending in Chrome:** none yet (T1.1 adds the S13 check).
 - **Gates:** `npm run verify` green (73 unit tests); `test:e2e` 16/16. G1 allowlist 4 entries (2 Dexie error-message URLs, owner approved).
+- **Conditions (ADR-017):** session storage at default access level; import writes via `src/storage/jobs.ts`, one transaction, same Zod as SAVE_JOB; X3 look-alike host tests; no new permission, including `downloads`.
 - **Note:** modules using Zod import `zod/mini` plus `src/shared/zod-guard.ts` (sets jitless). Never re-export the `z` namespace: it defeats tree-shaking and pulls json-schema.org URLs into the bundle.
 - **Note:** `chrome.runtime.reload()` and stopping the worker via CDP both kill the test context (command-line-loaded extension); use `launchExtension` with extra args for fresh-start checks.
 
