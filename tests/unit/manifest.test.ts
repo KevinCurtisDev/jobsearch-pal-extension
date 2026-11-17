@@ -1,8 +1,10 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { bannedCode, checkManifest, referencedFiles } from "../../scripts/dist-rules.ts";
+import { bannedCode, checkManifest, loadMessages, referencedFiles, resolveMessages } from "../../scripts/dist-rules.ts";
 
-const manifest = JSON.parse(readFileSync("src/manifest.json", "utf8")) as Record<string, unknown>;
+const raw = JSON.parse(readFileSync("src/manifest.json", "utf8")) as Record<string, unknown>;
+// check-dist resolves __MSG_*__ placeholders before the length checks; do the same here.
+const manifest = resolveMessages(raw, loadMessages(JSON.parse(readFileSync("_locales/en/messages.json", "utf8"))).messages).manifest;
 const config = JSON.parse(readFileSync("extension.config.json", "utf8")) as { permissions: { permissions: string[]; hostPermissions: string[] } };
 const pkg = JSON.parse(readFileSync("package.json", "utf8")) as { version: string };
 
@@ -25,8 +27,24 @@ describe("manifest", () => {
     expect(checkManifest(manifest, config.permissions, "9.9.9").join()).toMatch(/version/);
   });
 
-  it("lists the files the manifest references", () => {
+  it("applies the store length limits to the resolved strings", () => {
+    expect(checkManifest({ ...manifest, name: "x".repeat(76) }, config.permissions, pkg.version).join()).toMatch(/75/);
+    expect(checkManifest({ ...manifest, short_name: "x".repeat(13) }, config.permissions, pkg.version).join()).toMatch(/12/);
+    expect(checkManifest({ ...manifest, description: "x".repeat(133) }, config.permissions, pkg.version).join()).toMatch(/132/);
+  });
+
+  it("lists the files the manifest references, including the side panel (G4)", () => {
     expect(referencedFiles(manifest)).toContain("background.js");
+    expect(referencedFiles(manifest)).toContain("sidepanel.html");
+  });
+
+  it("has the six-permission budget (ADR-006), a side panel and no popup (ADR-012)", () => {
+    expect([...(manifest.permissions as string[])].sort()).toEqual(["activeTab", "alarms", "notifications", "scripting", "sidePanel", "storage"]);
+    expect([...config.permissions.permissions].sort()).toEqual([...(manifest.permissions as string[])].sort());
+    expect((manifest.side_panel as { default_path?: string }).default_path).toBe("sidepanel.html");
+    expect(manifest.action).not.toHaveProperty("default_popup");
+    const popup = { ...manifest, action: { ...(manifest.action as object), default_popup: "popup.html" } };
+    expect(checkManifest(popup, config.permissions, pkg.version).join()).toMatch(/default_popup/);
   });
 
   it("detects remote or dynamic code", () => {

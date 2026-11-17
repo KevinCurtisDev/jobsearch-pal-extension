@@ -52,5 +52,31 @@ export default tseslint.config(
       "no-implied-eval": "error",
       "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }]
     }
+  },
+  // G3 core purity (ADR-005): src/core is plain TypeScript with no browser or extension APIs.
+  // Stricter only: repeats the base no-restricted-globals entries and adds the browser globals.
+  {
+    files: ["src/core/**/*.{ts,js,mjs}"],
+    rules: {
+      "no-restricted-globals": [
+        "error",
+        { name: "eval", message: "No eval (MV3 CSP)." },
+        { name: "DOMParser", message: "DOMParser is banned." },
+        ...[
+          "chrome", "browser", "window", "document", "self", "navigator", "location", "history",
+          "localStorage", "sessionStorage", "indexedDB", "caches", "fetch", "XMLHttpRequest",
+          "WebSocket", "EventSource", "Worker", "alert", "confirm", "prompt"
+        ].map((name) => ({ name, message: `src/core is pure: no '${name}'. Pass data in from the caller.` }))
+      ],
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            { group: ["**/background/**", "**/page/**", "**/page-inject/**", "**/storage/**"], message: "src/core must not import browser-side modules." },
+            { group: ["webextension-polyfill", "dexie", "jsdom"], message: "src/core must not import browser-only modules." }
+          ]
+        }
+      ]
+    }
   }
 );

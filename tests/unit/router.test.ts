@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { _resetHandlers, on, route } from "../../src/background/router";
 import { isOwnSender, isExtensionPage, isPing, isReply } from "../../src/shared/messages";
+import { isPingMessage } from "../../src/shared/zod-guard";
 
 const ID = "abcdefghijklmnopabcdefghijklmnop";
 const own = { id: ID } as chrome.runtime.MessageSender;
@@ -39,6 +40,21 @@ describe("router", () => {
   it("refuses duplicate handlers", () => {
     on("ping", isPing, () => 1);
     expect(() => on("ping", isPing, () => 2)).toThrow(/duplicate/);
+  });
+});
+
+describe("ping validated with Zod (zod-guard)", () => {
+  afterEach(() => _resetHandlers());
+
+  it("accepts exactly { type: \"ping\" }", () => {
+    expect(isPingMessage({ type: "ping" })).toBe(true);
+    for (const bad of [{ type: "ping", extra: 1 }, { type: "pong" }, {}, null, "ping", [{ type: "ping" }]]) expect(isPingMessage(bad)).toBe(false);
+  });
+
+  it("routes ping through the Zod guard and drops malformed pings", async () => {
+    on("ping", isPingMessage, () => ({ version: "1.0.0" }));
+    await expect(route({ type: "ping" }, own, ID)).resolves.toEqual({ ok: true, data: { version: "1.0.0" } });
+    expect(route({ type: "ping", extra: "x" }, own, ID)).toBeNull();
   });
 });
 

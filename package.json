@@ -10,11 +10,11 @@
   "scripts": {
     "build": "node build.mjs",
     "dev": "node build.mjs --watch",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.core.json --noEmit",
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "verify": "npm run typecheck && npm run lint && npm test && npm run build && node scripts/check-dist.ts && node scripts/tasks.ts check",
+    "verify": "npm run typecheck && npm run lint && npm test && npm run build && node scripts/check-dist.ts && node scripts/licence-check.ts && node scripts/tasks.ts check",
     "package": "npm run verify && node scripts/package.ts",
     "measure": "node scripts/measure.ts",
     "test:e2e": "npm run build && playwright test",
@@ -36,5 +36,9 @@
   },
   "overrides": {
     "minimatch": "11.0.8"
+  },
+  "dependencies": {
+    "dexie": "4.4.7",
+    "zod": "4.6.7"
   }
 }

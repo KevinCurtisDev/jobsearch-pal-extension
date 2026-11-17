@@ -4,6 +4,7 @@
 //   npm run dev     development: watch mode, inline source maps, __DEV__ = true
 import * as esbuild from "esbuild";
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tokensToCss } from "./scripts/tokens-css.ts";
 
 const watch = process.argv.includes("--watch");
 const prod = !watch;
@@ -30,10 +31,18 @@ const builds = [...byFormat].map(([format, entryPoints]) => ({ ...common, format
 
 function copyStatic() {
   const manifest = JSON.parse(readFileSync("src/manifest.json", "utf8"));
-  if (!prod) manifest.name = `${manifest.name} (dev)`;
   writeFileSync(`${out}/manifest.json`, JSON.stringify(manifest, null, 2) + "\n");
   for (const s of config.static) cpSync(s.from, `${out}/${s.to}`, { recursive: true });
+  // The name is localized (__MSG_extName__), so the dev marker goes on the copied message.
+  const locale = `${out}/_locales/${manifest.default_locale}/messages.json`;
+  if (!prod && existsSync(locale)) {
+    const messages = JSON.parse(readFileSync(locale, "utf8"));
+    messages.extName.message = `${messages.extName.message} (dev)`;
+    writeFileSync(locale, JSON.stringify(messages, null, 2) + "\n");
+  }
   if (existsSync("public")) cpSync("public", out, { recursive: true });
+  // Design tokens -> CSS variables (ADR-012). Pages link tokens.css; no colour is written anywhere else.
+  writeFileSync(`${out}/tokens.css`, tokensToCss(JSON.parse(readFileSync("design/tokens.json", "utf8"))));
 }
 
 rmSync(out, { recursive: true, force: true });

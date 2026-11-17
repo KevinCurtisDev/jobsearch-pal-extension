@@ -79,9 +79,16 @@
 - **Decision:** Phase 1 runs spikes S1, S2, S5, S6, S10, S12 and S13. S13: does a Save job button inside the side panel get an activeTab grant for the current tab, with and without `openPanelOnActionClick`? Fallback: capture from the toolbar icon click.
 - **Why:** `docs/BUILD-PROMPT.md` §4; M1's capture flow depends on S13.
 - **Consequences:** results are recorded as "tested (spike id)". S12 is expected to pass via the factory e2e module (confirmed in T0.6).
+- **Results:** S12 tested (S12, 2026-11-17, T0.6): Playwright 1.65 drives the extension in a persistent Chromium context (worker, side panel page, toolbar click via CDP); `context.route` intercepts both page and service-worker requests (canary tests in `tests/e2e/offline.spec.ts`).
 
 ## ADR-014 M0 gate policy and dependency versions
 - **Status:** accepted (2026-11-17, owner)
 - **Decision:** `dexie` 4.4.7 (Apache-2.0) and `zod` 4.6.7 (MIT), exact versions, no `^` or `~`. G1 allowlist (`scripts/network-allow.json`) holds exact strings only, each with a reason; no wildcard or pattern entries. Runtime licences limited to MIT, Apache-2.0, ISC, BSD-2-Clause, BSD-3-Clause, 0BSD.
 - **Why:** supply chain risk (R5) and X1.
 - **Consequences:** `npm audit --omit=dev` runs at release (`verify` must work offline); e2e stays outside `verify` and runs in `/verify-extension`. Bundle budgets are set after M1; axe needs a separate dev-dependency approval.
+
+## ADR-015 Merge M0 into main
+- **Status:** accepted (2026-11-17, owner)
+- **Decision:** merge `m0-gates-platform` into `main` (no fast-forward, local only; pushing is a separate approval).
+- **Why:** M0 exit criteria met: `npm run verify` green (73 unit tests), `test:e2e` 16/16, owner's manual Chrome checks in `docs/QA.md` passed.
+- **Consequences:** M1 planning starts from `main`. Open: `npm audit` 11 high (dev-only, picomatch 4.0.7 ReDoS, no upstream fix yet); revisit when a fixed picomatch is published.

@@ -6,10 +6,24 @@
       "format": "esm"
     },
     {
+      "out": "sidepanel",
+      "src": "src/sidepanel/main.ts",
+      "format": "esm"
+    },
+    {
       "out": "page",
       "src": "src/page/main.ts",
       "format": "iife"
     }
   ],
-  "static": []
+  "static": [
+    {
+      "from": "_locales",
+      "to": "_locales"
+    },
+    {
+      "from": "src/ui",
+      "to": "ui"
+    }
+  ]
 }

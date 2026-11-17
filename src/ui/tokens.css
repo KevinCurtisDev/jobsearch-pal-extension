@@ -1,0 +1,55 @@
+/* Base UI styles for extension pages. Uses only the variables in dist/tokens.css, which the build
+   generates from design/tokens.json (ADR-012). No raw colours here or in src/sidepanel. */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: var(--color-mist);
+  color: var(--color-ink);
+  font-family: var(--font-family);
+  font-size: var(--font-callout-size);
+  font-weight: var(--font-callout-weight);
+  line-height: var(--font-callout-line-height);
+}
+
+.panel { padding: var(--space-4); }
+
+.panel-header {
+  padding-bottom: var(--space-3);
+  margin-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-hairline);
+}
+
+.panel-title {
+  margin: 0;
+  font-size: var(--font-headline-size);
+  font-weight: var(--font-headline-weight);
+  line-height: var(--font-headline-line-height);
+}
+
+.empty {
+  padding: var(--space-5) var(--space-4);
+  background: var(--color-white);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-card);
+  text-align: center;
+}
+
+.empty-title {
+  margin: 0 0 var(--space-2);
+  font-size: var(--font-callout-size);
+  font-weight: var(--font-headline-weight);
+}
+
+.empty-text {
+  margin: 0;
+  color: var(--color-graphite);
+  font-size: var(--font-footnote-size);
+  line-height: var(--font-footnote-line-height);
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}

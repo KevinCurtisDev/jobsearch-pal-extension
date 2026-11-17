@@ -2,7 +2,7 @@
 
 Save job posts from the page you're on, track each application's status, set reminders, back up and export. Free and local-only.
 
-A Manifest V3 Chrome extension. Permissions: activeTab, scripting, storage.
+A Manifest V3 Chrome extension. Permissions: activeTab, scripting, storage, sidePanel, alarms, notifications.
 
 ## Setup (Ubuntu / WSL)
 

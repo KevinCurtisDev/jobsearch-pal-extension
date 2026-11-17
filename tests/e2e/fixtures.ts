@@ -6,6 +6,8 @@
 //                fires action.onClicked, or opens the real popup when there is one)
 //   openPopup    clicks the icon and returns a driver for the real popup (via CDP, as Playwright
 //                doesn't expose extension popups as pages)
+//   net          offline guard: aborts and records every request that is not to `origin` or
+//                chrome-extension:// (pages and service workers, via context.route)
 import { test as base, chromium, type BrowserContext, type CDPSession, type Page, type Worker } from "@playwright/test";
 import { createReadStream, existsSync, readFileSync, statSync } from "node:fs";
 import http from "node:http";
@@ -32,6 +34,13 @@ type Fixtures = {
   clickAction: (page: Page) => Promise<void>;
   openPopup: (page: Page) => Promise<Popup>;
   manifest: () => Promise<chrome.runtime.Manifest>;
+  net: NetLog;
+};
+
+export type NetLog = {
+  /** Requests that were aborted because they left the machine (URL, and "sw" if from a service worker). */
+  external: { url: string; from: "page" | "sw" }[];
+  clear(): void;
 };
 
 export const test = base.extend<Fixtures, { origin: string }>({
@@ -59,30 +68,12 @@ export const test = base.extend<Fixtures, { origin: string }>({
 
   // eslint-disable-next-line no-empty-pattern
   context: async ({}, use) => {
-    const ext = path.resolve("dist");
-    if (!existsSync(path.join(ext, "manifest.json"))) throw new Error("dist/ is missing: run npm run build (npm run test:e2e does this)");
-    const context = await chromium.launchPersistentContext("", {
-      channel: "chromium",
-      ...(process.env.PW_CHROMIUM_PATH ? { executablePath: process.env.PW_CHROMIUM_PATH } : {}),
-      headless: process.env.HEADLESS !== "0",
-      args: [`--disable-extensions-except=${ext}`, `--load-extension=${ext}`]
-    });
+    const context = await launchExtension();
     await use(context);
     await context.close();
   },
 
-  sw: async ({ context }, use) => {
-    let [sw] = context.serviceWorkers();
-    if (!sw) sw = await context.waitForEvent("serviceworker");
-    // The worker object appears before its script has finished running; wait until the background has
-    // registered its listeners (the core router always listens to runtime.onMessage), or early toolbar
-    // clicks can be lost.
-    for (let i = 0; i < 200; i++) {
-      if (await sw.evaluate(() => chrome.runtime.onMessage.hasListeners()).catch(() => false)) break;
-      await new Promise((r) => setTimeout(r, 25));
-    }
-    await use(sw);
-  },
+  sw: async ({ context }, use) => use(await readyWorker(context)),
 
   extensionId: async ({ sw }, use) => use(new URL(sw.url()).host),
 
@@ -92,6 +83,19 @@ export const test = base.extend<Fixtures, { origin: string }>({
     const cdp = await browser.newBrowserCDPSession();
     await use(cdp);
     await cdp.detach().catch(() => {});
+  },
+
+  net: async ({ context, origin }, use) => {
+    const external: NetLog["external"] = [];
+    await context.route("**/*", async (route) => {
+      const req = route.request();
+      const url = req.url();
+      if (url.startsWith(`${origin}/`) || url.startsWith("chrome-extension://")) return route.continue();
+      external.push({ url, from: req.serviceWorker() ? "sw" : "page" });
+      return route.abort("internetdisconnected");
+    });
+    await use({ external, clear: () => void external.splice(0) });
+    await context.unrouteAll({ behavior: "ignoreErrors" });
   },
 
   manifest: async ({ sw }, use) => use(() => sw.evaluate(() => chrome.runtime.getManifest())),
@@ -122,6 +126,32 @@ export const test = base.extend<Fixtures, { origin: string }>({
     });
   }
 });
+
+/** Launches persistent Chromium with only dist/ loaded. `extraArgs` go on the command line. */
+export async function launchExtension(extraArgs: string[] = []): Promise<BrowserContext> {
+  const ext = path.resolve("dist");
+  if (!existsSync(path.join(ext, "manifest.json"))) throw new Error("dist/ is missing: run npm run build (npm run test:e2e does this)");
+  return chromium.launchPersistentContext("", {
+    channel: "chromium",
+    ...(process.env.PW_CHROMIUM_PATH ? { executablePath: process.env.PW_CHROMIUM_PATH } : {}),
+    headless: process.env.HEADLESS !== "0",
+    args: [`--disable-extensions-except=${ext}`, `--load-extension=${ext}`, ...extraArgs]
+  });
+}
+
+/** Waits for the extension's service worker and until it has registered its listeners. */
+export async function readyWorker(context: BrowserContext): Promise<Worker> {
+  let [sw] = context.serviceWorkers();
+  if (!sw) sw = await context.waitForEvent("serviceworker");
+  // The worker object appears before its script has finished running; wait until the background has
+  // registered its listeners (the core router always listens to runtime.onMessage), or early toolbar
+  // clicks can be lost.
+  for (let i = 0; i < 200; i++) {
+    if (await sw.evaluate(() => chrome.runtime.onMessage.hasListeners()).catch(() => false)) break;
+    await new Promise((r) => setTimeout(r, 25));
+  }
+  return sw;
+}
 
 /** Drives a page target through the browser CDP session (non-flattened attach). */
 async function driver(cdp: CDPSession, targetId: string): Promise<Popup> {
